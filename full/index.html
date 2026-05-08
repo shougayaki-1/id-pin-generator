@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>チケット データ処理システム</title>
+    <style>
+        :root { 
+            --primary: #2c3e50; 
+            --secondary: #34495e; /* 少し落ち着いた青系に変更 */
+            --danger: #e74c3c; 
+            --success: #27ae60; /* 眩しい緑から、落ち着いた深緑に変更 */
+            --bg: #f0f2f5; 
+            --card: #ffffff; 
+            --border: #dcdde1; 
+            --text: #2f3640;
+            --guide-bg: #e8f4f8; /* ガイド部分の背景色 */
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif; background-color: var(--bg); color: var(--text); line-height: 1.6; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h1 { text-align: center; color: var(--primary); margin-bottom: 20px; font-size: 1.8rem;}
+        
+        .card { background-color: var(--card); border-radius: 8px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card h2 { border-bottom: 2px solid var(--primary); padding-bottom: 5px; margin-bottom: 15px; font-size: 1.2rem; color: var(--primary); }
+        
+        /* 使い方ガイドのスタイル */
+        .guide-box { background-color: var(--guide-bg); border-left: 4px solid #3498db; padding: 15px; margin-bottom: 20px; border-radius: 0 5px 5px 0; font-size: 0.9rem; }
+        .guide-box h3 { color: #2980b9; margin-bottom: 10px; font-size: 1rem; }
+        .guide-box ul { margin-left: 20px; margin-bottom: 10px; }
+        .guide-box li { margin-bottom: 5px; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; }
+        .form-group input[type="file"], .form-group select { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 1rem; background-color: #fff; }
+        
+        .btn { padding: 10px 20px; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; color: white; font-weight: bold; transition: opacity 0.2s; }
+        .btn:hover { opacity: 0.9; }
+        .btn-primary { background-color: var(--secondary); }
+        .btn-success { background-color: var(--success); }
+        .btn-block { display: block; width: 100%; font-size: 1.1rem; padding: 12px; margin-top: 10px;}
+        
+        .mapping-container { display: flex; gap: 20px; flex-wrap: wrap; }
+        .mapping-box { flex: 1; min-width: 300px; background: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #eee; }
+        .mapping-box h3 { font-size: 1rem; margin-bottom: 10px; color: #d35400; border-bottom: 1px solid #ccc; padding-bottom: 5px;}
+        .mapping-item { border-bottom: 1px dashed #ddd; padding-bottom: 5px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center;}
+        .mapping-item label { font-size: 0.85rem; width: 40%; font-weight: bold; color: #555;}
+        .mapping-item select { width: 55%; font-size: 0.85rem; padding: 4px;}
+        
+        .help-text { font-size: 0.85rem; color: #7f8c8d; margin-top: 2px; }
+        #logArea { background-color: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; height: 180px; overflow-y: auto; font-family: monospace; font-size: 0.85rem; white-space: pre-wrap; margin-top: 10px; }
+        .controls-row { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>チケット データ自動処理システム</h1>
+
+    <!-- 新任担当者向けガイド -->
+    <div class="guide-box">
+        <h3>🔰 新しい担当者へ：このツールの使い方</h3>
+        <p>このシステムは、Formsの回答データとチケット(ID/PIN)を結合し、「チケットシステム登録用」と「通知書印刷用」のデータを作るツールです。</p>
+        <ol style="margin-left: 20px; margin-top: 5px; margin-bottom: 10px;">
+            <li><strong>STEP 1: 4つのCSVを用意する</strong><br>
+                ①執行部で決めた枠数リスト、②保護者のForms回答、③招待者のForms回答、④事前に作った空のID/PINリスト を読み込ませます。
+            </li>
+            <li><strong>STEP 2: 列の紐付け（マッピング）を確認する</strong><br>
+                「氏名はどの列か？」をシステムが自動で推測します。間違っている部分があれば、手動でドロップダウンから正しい列を選び直してください。（該当しない項目は「-- なし --」でOKです）
+            </li>
+            <li><strong>STEP 3: 処理実行とダウンロード</strong><br>
+                実行すると2つのCSVがダウンロードできます。
+                <ul>
+                    <li><strong>① システム用CSV</strong>： これを開成祭のチケット発券システム(Web)の管理画面からインポートします。</li>
+                    <li><strong>② 差し込み印刷用CSV</strong>： これをWordで開き、「差し込み文書 > 宛先の選択 > 既存のリスト」で読み込ませて、各生徒へ配布する通知書を印刷します。</li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="card">
+        <h2>1. データファイル(CSV)の読み込み</h2>
+        <div class="form-group">
+            <label>① 割り当てマスター</label>
+            <input type="file" id="quotaFile" accept=".csv">
+            <p class="help-text">A列に「年組番号」、B列に「許可した招待券の枚数」が入ったリスト</p>
+        </div>
+        <div class="form-group">
+            <label>② 【保護者公開】入場者フォーム回答</label>
+            <input type="file" id="formsParFile" accept=".csv">
+            <p class="help-text">Formsからダウンロードした、保護者用の回答データ</p>
+        </div>
+        <div class="form-group">
+            <label>③ 【一般公開】招待者フォーム回答</label>
+            <input type="file" id="formsInvFile" accept=".csv">
+            <p class="help-text">Formsからダウンロードした、招待客用の回答データ</p>
+        </div>
+        <div class="form-group">
+            <label>④ ID/PIN リスト</label>
+            <input type="file" id="idpinFile" accept=".csv">
+            <p class="help-text">「ID/PIN生成ツール」で出力した、まだ誰にも割り当てていないチケットのリスト</p>
+        </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="card" id="mappingCard" style="display: none;">
+        <h2>2. Forms列の紐付け（マッピング）確認</h2>
+        <p class="help-text" style="margin-bottom:10px;">左側（オレンジ色）がシステムで必要な情報、右側（ドロップダウン）が読み込んだFormsの列です。<br>自動で推測されていますが、ズレている場合は手動で直してください。</p>
+        <div class="mapping-container">
+            <div class="mapping-box">
+                <h3>【保護者公開】フォームの列設定</h3>
+                <div id="mappingControlsPar"></div>
+            </div>
+            <div class="mapping-box">
+                <h3>【一般公開】フォームの列設定</h3>
+                <div id="mappingControlsInv"></div>
+            </div>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="processData()">データ処理を実行する</button>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="card" id="executeCard" style="display: none;">
+        <h2>3. 処理結果とダウンロード</h2>
+        <div id="logArea">待機中...</div>
+        
+        <div id="downloadArea" class="controls-row" style="display: none; padding-top: 15px; border-top: 1px solid #eee;">
+            <p style="width: 100%; font-weight: bold; color: #e67e22; margin-bottom: 5px;">↓ 処理が完了しました。以下の2つをダウンロードして次の作業に進んでください。</p>
+            <button class="btn btn-success" onclick="downloadSystemCSV()">① チケットシステム インポート用 CSV</button>
+            <button class="btn btn-success" onclick="downloadPrintCSV()">② Word差し込み印刷用 CSV</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let quotaMap = new Map();
+    let formsParData = [];
+    let formsInvData = [];
+    let idpinRawData = [];
+    let generatedSystemData = [];
+    let generatedPrintData = [];
+
+    // マッピング定義：保護者用
+    const mapDefPar = [
+        { id: 'p_Time', label: 'タイムスタンプ(必須)', keys: ['完了時刻', 'Timestamp', 'タイムスタンプ'] },
+        { id: 'p_Class', label: '年組番号(必須)', keys: ['年組番号', 'クラス'] },
+        { id: 'p_Student', label: '生徒氏名(必須)', keys: ['生徒氏名', '氏名'] },
+        { id: 'p_Num', label: '入場予定人数', keys: ['入場予定人数', '人数'] },
+        { id: 'p_N1', label: '入場者1(代表) 氏名', keys: ['入場者1', '代表', '氏名'] },
+        { id: 'p_R1', label: '入場者1(代表) 続柄', keys: ['入場者1', '代表', '続柄'] },
+        { id: 'p_N2', label: '入場者2 氏名', keys: ['入場者2', '氏名'] },
+        { id: 'p_R2', label: '入場者2 続柄', keys: ['入場者2', '続柄'] },
+        { id: 'p_N3', label: '入場者3 氏名', keys: ['入場者3', '氏名'] },
+        { id: 'p_R3', label: '入場者3 続柄', keys: ['入場者3', '続柄'] },
+        { id: 'p_N4', label: '入場者4 氏名', keys: ['入場者4', '氏名'] },
+        { id: 'p_R4', label: '入場者4 続柄', keys: ['入場者4', '続柄'] },
+        { id: 'p_N5', label: '入場者5 氏名', keys: ['入場者5', '氏名'] },
+        { id: 'p_R5', label: '入場者5 続柄', keys: ['入場者5', '続柄'] }
+    ];
+
+    // マッピング定義：招待者用
+    const mapDefInv = [
+        { id: 'i_Time', label: 'タイムスタンプ(必須)', keys: ['完了時刻', 'Timestamp', 'タイムスタンプ'] },
+        { id: 'i_Class', label: '年組番号(必須)', keys: ['年組番号', 'クラス'] },
+        { id: 'i_Student', label: '生徒氏名(必須)', keys: ['生徒氏名', '氏名'] },
+        { id: 'i_N1', label: '招待者1 氏名', keys: ['招待者1', '氏名'] },
+        { id: 'i_R1', label: '招待者1 続柄', keys: ['招待者1', '続柄'] },
+        { id: 'i_N2', label: '招待者2 氏名', keys: ['招待者2', '氏名'] },
+        { id: 'i_R2', label: '招待者2 続柄', keys: ['招待者2', '続柄'] },
+        { id: 'i_N3', label: '招待者3 氏名', keys: ['招待者3', '氏名'] },
+        { id: 'i_R3', label: '招待者3 続柄', keys: ['招待者3', '続柄'] },
+        { id: 'i_N4', label: '招待者4 氏名', keys: ['招待者4', '氏名'] },
+        { id: 'i_R4', label: '招待者4 続柄', keys: ['招待者4', '続柄'] },
+        { id: 'i_N5', label: '招待者5 氏名', keys: ['招待者5', '氏名'] },
+        { id: 'i_R5', label: '招待者5 続柄', keys: ['招待者5', '続柄'] }
+    ];
+
+    const phoneticMap = { 'A':'エー','B':'ビー','C':'シー','D':'ディー','E':'イー','F':'エフ','G':'ジー','H':'エイチ','I':'アイ','J':'ジェイ','K':'ケー','L':'エル','M':'エム','N':'エヌ','O':'オー','P':'ピー','Q':'キュー','R':'アール','S':'エス','T':'ティー','U':'ユー','V':'ブイ','W':'ダブリュー','X':'エックス','Y':'ワイ','Z':'ゼット' };
+    function getFurigana(pin) { return pin ? pin.toUpperCase().split('').map(c => phoneticMap[c] || c).join('・') : ''; }
+
+    function parseCSV(text) {
+        const result = []; let row = []; let inQuotes = false; let currentVal = '';
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            if (inQuotes) {
+                if (char === '"' && text[i+1] === '"') { currentVal += '"'; i++; } 
+                else if (char === '"') { inQuotes = false; } else { currentVal += char; }
+            } else {
+                if (char === '"') { inQuotes = true; } else if (char === ',') { row.push(currentVal.trim()); currentVal = ''; } 
+                else if (char === '\n') { row.push(currentVal.trim()); result.push(row); row = []; currentVal = ''; } 
+                else if (char !== '\r') { currentVal += char; }
+            }
+        }
+        if (currentVal || row.length > 0) { row.push(currentVal.trim()); result.push(row); }
+        return result;
+    }
+
+    document.getElementById('quotaFile').addEventListener('change', e => loadFile(e, 'quota'));
+    document.getElementById('formsParFile').addEventListener('change', e => loadFile(e, 'formsPar'));
+    document.getElementById('formsInvFile').addEventListener('change', e => loadFile(e, 'formsInv'));
+    document.getElementById('idpinFile').addEventListener('change', e => loadFile(e, 'idpin'));
+
+    function loadFile(e, type) {
+        const file = e.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = event => {
+            const data = parseCSV(event.target.result);
+            if (type === 'quota') {
+                quotaMap.clear();
+                for(let i=1; i<data.length; i++) if(data[i][0]) quotaMap.set(data[i][0], parseInt(data[i][1])||0);
+                logMessage(`[OK] 割り当てマスター読み込み完了 (${quotaMap.size}件)`);
+            } else if (type === 'formsPar') {
+                formsParData = data;
+                buildMappingUI(formsParData[0], mapDefPar, 'mappingControlsPar');
+                logMessage(`[OK] 保護者フォーム読み込み完了`);
+                checkReady();
+            } else if (type === 'formsInv') {
+                formsInvData = data;
+                buildMappingUI(formsInvData[0], mapDefInv, 'mappingControlsInv');
+                logMessage(`[OK] 招待者フォーム読み込み完了`);
+                checkReady();
+            } else if (type === 'idpin') {
+                idpinRawData = data;
+                logMessage(`[OK] ID/PIN読み込み完了 (プール: ${idpinRawData.length - 1}件)`);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function checkReady() {
+        if(formsParData.length > 0 || formsInvData.length > 0) { document.getElementById('mappingCard').style.display = 'block'; }
+    }
+
+    function buildMappingUI(headers, mapDef, containerId) {
+        const container = document.getElementById(containerId); container.innerHTML = '';
+        if(!headers) return;
+        mapDef.forEach(config => {
+            const select = document.createElement('select'); select.id = config.id;
+            select.appendChild(new Option('-- なし --', '-1'));
+            let bestMatch = -1; let maxScore = 0;
+            headers.forEach((h, i) => {
+                select.appendChild(new Option(`[${i+1}] ${h}`, i));
+                let score = 0; config.keys.forEach(kw => { if(h.includes(kw)) score++; });
+                if(score > maxScore) { maxScore = score; bestMatch = i; }
+            });
+            if(bestMatch !== -1) select.value = bestMatch;
+            const div = document.createElement('div'); div.className = 'mapping-item';
+            div.innerHTML = `<label>${config.label}</label>`; div.appendChild(select);
+            container.appendChild(div);
+        });
+    }
+
+    function logMessage(msg) { document.getElementById('logArea').innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}\n`; }
+
+    function processData() {
+        document.getElementById('executeCard').style.display = 'block';
+        document.getElementById('logArea').innerHTML = '';
+        
+        if(idpinRawData.length < 2) return alert("ID/PINリストが読み込まれていません！処理を中止します。");
+
+        // UIからマッピング取得
+        const mPar = {}; const mInv = {};
+        mapDefPar.forEach(c => mPar[c.id] = document.getElementById(c.id) ? parseInt(document.getElementById(c.id).value) : -1);
+        mapDefInv.forEach(c => mInv[c.id] = document.getElementById(c.id) ? parseInt(document.getElementById(c.id).value) : -1);
+
+        let pool = idpinRawData.slice(1).map(r => ({ id: r[0], pin: r[1] }));
+        let poolIdx = 0;
+        const getTicket = () => { if(poolIdx >= pool.length) throw new Error("ID/PINが枯渇しました！"); return pool[poolIdx++]; };
+
+        // 最新の回答を年組番号でクレンジング
+        const validPar = new Map();
+        if(formsParData.length > 0) {
+            for(let i=1; i<formsParData.length; i++) {
+                const r = formsParData[i]; const k = r[mPar.p_Class]; if(!k) continue;
+                if(!validPar.has(k) || new Date(r[mPar.p_Time]) > new Date(validPar.get(k)[mPar.p_Time])) validPar.set(k, r);
+            }
+        }
+        const validInv = new Map();
+        if(formsInvData.length > 0) {
+            for(let i=1; i<formsInvData.length; i++) {
+                const r = formsInvData[i]; const k = r[mInv.i_Class]; if(!k) continue;
+                if(!validInv.has(k) || new Date(r[mInv.i_Time]) > new Date(validInv.get(k)[mInv.i_Time])) validInv.set(k, r);
+            }
+        }
+
+        // 両フォームの生徒（年組番号）を統合
+        const allClassNums = Array.from(new Set([...validPar.keys(), ...validInv.keys()])).sort();
+        
+        generatedSystemData = []; generatedPrintData = [];
+        let cutCount = 0;
+
+        try {
+            allClassNums.forEach(classNum => {
+                const rPar = validPar.get(classNum);
+                const rInv = validInv.get(classNum);
+                
+                const studentName = (rPar && mPar.p_Student !== -1) ? rPar[mPar.p_Student] : ((rInv && mInv.i_Student !== -1) ? rInv[mInv.i_Student] : '不明');
+                const allowedQuota = quotaMap.get(classNum) || 0;
+
+                let printRow = { classNum, studentName, allowedQuota, parNum:'', parNames: [], parId:'', parPin:'', parFuri:'', invs:[] };
+
+                // 1. 保護者処理
+                if(rPar) {
+                    printRow.parNum = mPar.p_Num !== -1 ? rPar[mPar.p_Num] : '';
+                    let pNames = []; let pRels = [];
+                    for(let i=1; i<=5; i++) {
+                        let name = mPar['p_N'+i] !== -1 ? rPar[mPar['p_N'+i]] : '';
+                        let rel = mPar['p_R'+i] !== -1 ? rPar[mPar['p_R'+i]] : '';
+                        if(name) { pNames.push(name); pRels.push(rel); }
+                    }
+                    if(pNames.length > 0) {
+                        const t = getTicket();
+                        printRow.parId = t.id; printRow.parPin = t.pin; printRow.parFuri = getFurigana(t.pin);
+                        printRow.parNames = pNames;
+                        generatedSystemData.push({ id:t.id, pin:t.pin, type:'入場券', classNum, studentName, visitorName: pNames.join(' / '), relation: pRels.join(' / '), num: pNames.length });
+                    }
+                }
+
+                // 2. 招待者処理
+                if(rInv) {
+                    let count = 0;
+                    for(let i=1; i<=5; i++) {
+                        let name = mInv['i_N'+i] !== -1 ? rInv[mInv['i_N'+i]] : '';
+                        let rel = mInv['i_R'+i] !== -1 ? rInv[mInv['i_R'+i]] : '';
+                        if(name) {
+                            if(count < allowedQuota) {
+                                count++;
+                                const t = getTicket();
+                                printRow.invs.push({ name, rel, id:t.id, pin:t.pin, furi:getFurigana(t.pin) });
+                                generatedSystemData.push({ id:t.id, pin:t.pin, type:'招待券', classNum, studentName, visitorName: name, relation: rel, num: 1 });
+                            } else {
+                                cutCount++;
+                                logMessage(`⚠️ 足切り: ${classNum} ${studentName} の招待者（${name}）を枠オーバーのためカットしました。`);
+                            }
+                        }
+                    }
+                }
+                generatedPrintData.push(printRow);
+            });
+
+            document.getElementById('downloadArea').style.display = 'flex';
+            logMessage(`✅ 統合処理完了！ (${allClassNums.length}名の生徒を処理しました)`);
+            logMessage(`✅ 発行枚数: ${poolIdx}枚 (枠オーバーによるカット: ${cutCount}件)`);
+
+        } catch(e) {
+            logMessage(`[中止] ${e.message}`); alert(e.message);
+        }
+    }
+
+    function escapeCSV(v) { v=String(v||''); return v.includes(',') || v.includes('"') ? `"${v.replace(/"/g,'""')}"` : v; }
+
+    function downloadSystemCSV() {
+        let csv = "ID,PIN,券種,年組番号,生徒氏名,来場者名,続柄,入場人数\n";
+        generatedSystemData.forEach(d => csv += `${d.id},${d.pin},${d.type},${d.classNum},${escapeCSV(d.studentName)},${escapeCSV(d.visitorName)},${escapeCSV(d.relation)},${d.num}\n`);
+        triggerDl(csv, "system_import.csv");
+    }
+
+    function downloadPrintCSV() {
+        let csv = "年組番号,生徒氏名,割当枠,保護者_人数,保護者_氏名リスト,保護者_ID,保護者_PIN,保護者_フリガナ";
+        for(let i=1; i<=5; i++) csv += `,招${i}_氏名,招${i}_続柄,招${i}_ID,招${i}_PIN,招${i}_フリガナ`;
+        csv += "\n";
+        generatedPrintData.forEach(d => {
+            let r = `${d.classNum},${escapeCSV(d.studentName)},${d.allowedQuota},${escapeCSV(d.parNum)},${escapeCSV(d.parNames.join('、'))},${d.parId},${d.parPin},${d.parFuri}`;
+            for(let i=0; i<5; i++) {
+                const inv = d.invs[i] || {};
+                r += `,${escapeCSV(inv.name)},${escapeCSV(inv.rel)},${inv.id||''},${inv.pin||''},${inv.furi||''}`;
+            }
+            csv += r + "\n";
+        });
+        triggerDl(csv, "print_merge.csv");
+    }
+
+    function triggerDl(c, f) {
+        const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), c], { type: 'text/csv' });
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = f; a.click();
+    }
+</script>
+</body>
+</html>

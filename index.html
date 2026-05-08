@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学校祭チケット ID/PIN 生成システム</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --danger-color: #e74c3c;
+            --success-color: #2ecc71;
+            --background-color: #f5f6fa;
+            --card-bg: #ffffff;
+            --border-color: #dcdde1;
+            --text-color: #2f3640;
+            --btn-csv-bg: #8e44ad; /* チケットCSVダウンロード（新規）の色 */
+            --btn-csv-hover-bg: #9b59b6;
+            --btn-history-bg: #34495e; /* 履歴からの再ダウンロードボタンの色 */
+            --btn-history-hover-bg: #2c3e50;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .status-bar {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .status-bar span {
+            margin: 5px 0;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .card h2 {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: var(--primary-color);
+        }
+
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .form-group input[type="number"],
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .checkbox-label input {
+            margin-right: 5px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
+
+        .btn-primary { background-color: var(--secondary-color); }
+        .btn-primary:hover { background-color: #2980b9; }
+        
+        .btn-danger { background-color: var(--danger-color); }
+        .btn-danger:hover { background-color: #c0392b; }
+
+        .btn-secondary { background-color: #7f8c8d; }
+        .btn-secondary:hover { background-color: #95a5a6; }
+
+        .btn-csv { background-color: var(--btn-csv-bg); }
+        .btn-csv:hover { background-color: var(--btn-csv-hover-bg); }
+
+        .btn-history { background-color: var(--btn-history-bg); }
+        .btn-history:hover { background-color: var(--btn-history-hover-bg); }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+            font-size: 1.2rem;
+            padding: 15px;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .controls-row > *:not(:last-child) {
+            margin-bottom: 10px;
+        }
+        .controls-row .btn-block {
+            width: auto;
+            min-width: 150px;
+        }
+        .controls-row > div:first-child {
+            flex-grow: 1;
+            min-width: 200px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+        
+        .help-text {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-top: 2px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f2f6;
+        }
+        
+        #historyTable td {
+            vertical-align: middle;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+        }
+        .alert-warning { background-color: #f39c12; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>学校祭チケット ID/PIN 生成システム</h1>
+
+    <div class="status-bar">
+        <span id="statusTotalCreated">総生成履歴: 0件</span>
+        <span id="statusUsedIds">登録済ID数: 0 / 登録済PIN数: 0</span>
+    </div>
+
+    <div class="card">
+        <h2>設定値の保存</h2>
+        <p class="help-text">現在の設定値（ID/PINのルール、文字数など）はブラウザに自動保存されます。次回のアクセス時に復元されます。</p>
+    </div>
+
+    <div class="grid-2col">
+        <!-- ID設定 -->
+        <div class="card">
+            <h2>ID 生成ルール</h2>
+            <div class="form-group">
+                <label>桁数</label>
+                <input type="number" id="idLength" value="4" min="4" max="32">
+            </div>
+            <div class="form-group">
+                <label>使用する文字種</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-label"><input type="checkbox" id="idUseNum" checked>数字 (0-9)</label>
+                    <label class="checkbox-label"><input type="checkbox" id="idUseUpper">英大文字 (A-Z)</label>
+                    <label class="checkbox-label"><input type="checkbox" id="idUseLower">英小文字 (a-z)</label>
+                    <label class="checkbox-label"><input type="checkbox" id="idUseSym">記号 (!@#$等)</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>全体から除外する文字</label>
+                <input type="text" id="idExclude" value="eE" placeholder="例: 0Oo1Il">
+                <div class="help-text">紛らわしい文字などを入力してください（大文字小文字区別あり）</div>
+            </div>
+            <div class="form-group">
+                <label>1文字目に使用しない文字</label>
+                <input type="text" id="idExcludeFirst" value="0">
+            </div>
+        </div>
+
+        <!-- PIN設定 -->
+        <div class="card">
+            <h2>PIN 生成ルール</h2>
+            <div class="form-group">
+                <label>桁数</label>
+                <input type="number" id="pinLength" value="4" min="4" max="32">
+            </div>
+            <div class="form-group">
+                <label>使用する文字種</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-label"><input type="checkbox" id="pinUseNum" checked>数字 (0-9)</label>
+                    <label class="checkbox-label"><input type="checkbox" id="pinUseUpper" checked>英大文字 (A-Z)</label>
+                    <label class="checkbox-label"><input type="checkbox" id="pinUseLower">英小文字 (a-z)</label>
+                    <label class="checkbox-label"><input type="checkbox" id="pinUseSym">記号 (!@#$等)</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>全体から除外する文字</label>
+                <input type="text" id="pinExclude" value="eE" placeholder="例: 0Oo1Il">
+            </div>
+            <div class="form-group">
+                <label>1文字目に使用しない文字</label>
+                <input type="text" id="pinExcludeFirst" value="0">
+            </div>
+        </div>
+    </div>
+
+    <!-- 実行エリア -->
+    <div class="card">
+        <h2>生成実行</h2>
+        <div class="controls-row">
+            <div class="form-group" style="margin-bottom: 0; flex-grow: 1;">
+                <label>生成件数</label>
+                <input type="number" id="generateCount" value="100" min="1" max="10000">
+            </div>
+            <button class="btn btn-primary btn-block" style="width: auto;" onclick="generateData()">データを生成する</button>
+        </div>
+        <div id="theoreticalLimitAlert" class="alert alert-warning" style="display: none;">
+            警告: 設定されたルールでは、理論上の最大生成可能件数を超過する、または非常に近い状態です。生成に時間がかかるか、失敗する可能性があります。
+        </div>
+    </div>
+
+    <!-- 結果エリア -->
+    <div class="card" id="resultArea" style="display: none;">
+        <h2>直近の生成結果 <span id="currentCount"></span></h2>
+        <div class="controls-row">
+            <button class="btn btn-csv" onclick="downloadCSV()">チケット用CSVダウンロード</button>
+        </div>
+        <p class="help-text">※プレビューは先頭10件のみ表示しています</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>ID</th>
+                    <th>PIN</th>
+                </tr>
+            </thead>
+            <tbody id="previewTable">
+                <!-- プレビューがここに挿入されます -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 履歴・システム管理 -->
+    <div class="card">
+        <h2>データ管理（履歴・バックアップ）</h2>
+        <div class="controls-row">
+            <button class="btn btn-secondary" onclick="exportBackupJSON()">履歴バックアップ保存 (JSON)</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">履歴の復元 (JSON)</button>
+            <input type="file" id="fileInput" accept=".json" onchange="importBackupJSON(event)">
+            <button class="btn btn-danger" style="margin-left: auto;" onclick="clearHistory()">全履歴リセット</button>
+        </div>
+        <p class="help-text">※システムを別のPCに移す場合や、ブラウザのキャッシュを消す前に「履歴バックアップ保存」を行ってください。</p>
+        
+        <h3 style="margin-top: 20px; font-size: 1rem;">生成履歴ログ</h3>
+        <p class="help-text">※過去に生成したデータをもう一度CSVでダウンロードできます。</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>生成日時</th>
+                    <th>件数</th>
+                    <th>IDルール</th>
+                    <th>PINルール</th>
+                    <th>再出力</th>
+                </tr>
+            </thead>
+            <tbody id="historyTable">
+                <!-- 履歴がここに挿入されます -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // --- 文字種定義 ---
+    const CHAR_SETS = {
+        num: '0123456789',
+        upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        lower: 'abcdefghijklmnopqrstuvwxyz',
+        sym: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+    };
+
+    // --- データ保存用キー ---
+    const STORAGE_KEY = 'ticket_generator_data';
+
+    // --- アプリケーションデータ構造 ---
+    let appData = {
+        settings: {
+            id: { length: 4, useNum: true, useUpper: false, useLower: false, useSym: false, exclude: 'eE', excludeFirst: '0' },
+            pin: { length: 4, useNum: true, useUpper: true, useLower: false, useSym: false, exclude: 'eE', excludeFirst: '0' },
+            generateCount: 100
+        },
+        history: [], // { batchId, date, count, idRules, pinRules, data: [{id, pin}] }
+        usedIds: [],
+        usedPins: []
+    };
+
+    let currentGeneratedBatch = []; 
+
+    // --- 初期化処理 ---
+    window.onload = function() {
+        loadData();
+        applySettingsToUI();
+        updateUI();
+    };
+
+    // --- ロジック: データロード・セーブ ---
+    function loadData() {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                appData.settings = { ...getDefaultSettings(), ...parsed.settings };
+                appData.history = parsed.history || [];
+                appData.usedIds = parsed.usedIds || [];
+                appData.usedPins = parsed.usedPins || [];
+            } else {
+                appData.settings = getDefaultSettings();
+            }
+        } catch (e) {
+            console.error("データの読み込みに失敗しました", e);
+            alert("履歴データの読み込みに失敗しました。データが破損している可能性があります。");
+            appData.settings = getDefaultSettings();
+        }
+    }
+
+    function saveData() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        } catch (e) {
+            console.error("データの保存に失敗しました", e);
+            alert("データの保存に失敗しました。ブラウザのストレージ容量制限に達した可能性があります。古い履歴を削除するかバックアップを取ってください。");
+        }
+    }
+
+    // --- デフォルト設定 ---
+    function getDefaultSettings() {
+        return {
+            id: { length: 4, useNum: true, useUpper: false, useLower: false, useSym: false, exclude: 'eE', excludeFirst: '0' },
+            pin: { length: 4, useNum: true, useUpper: true, useLower: false, useSym: false, exclude: 'eE', excludeFirst: '0' },
+            generateCount: 100
+        };
+    }
+
+    // --- UIと設定の同期 ---
+    function applySettingsToUI() {
+        document.getElementById('idLength').value = appData.settings.id.length;
+        document.getElementById('idUseNum').checked = appData.settings.id.useNum;
+        document.getElementById('idUseUpper').checked = appData.settings.id.useUpper;
+        document.getElementById('idUseLower').checked = appData.settings.id.useLower;
+        document.getElementById('idUseSym').checked = appData.settings.id.useSym;
+        document.getElementById('idExclude').value = appData.settings.id.exclude;
+        document.getElementById('idExcludeFirst').value = appData.settings.id.excludeFirst;
+
+        document.getElementById('pinLength').value = appData.settings.pin.length;
+        document.getElementById('pinUseNum').checked = appData.settings.pin.useNum;
+        document.getElementById('pinUseUpper').checked = appData.settings.pin.useUpper;
+        document.getElementById('pinUseLower').checked = appData.settings.pin.useLower;
+        document.getElementById('pinUseSym').checked = appData.settings.pin.useSym;
+        document.getElementById('pinExclude').value = appData.settings.pin.exclude;
+        document.getElementById('pinExcludeFirst').value = appData.settings.pin.excludeFirst;
+
+        document.getElementById('generateCount').value = appData.settings.generateCount;
+    }
+
+    function saveSettingsFromUI() {
+        appData.settings.id.length = parseInt(document.getElementById('idLength').value);
+        appData.settings.id.useNum = document.getElementById('idUseNum').checked;
+        appData.settings.id.useUpper = document.getElementById('idUseUpper').checked;
+        appData.settings.id.useLower = document.getElementById('idUseLower').checked;
+        appData.settings.id.useSym = document.getElementById('idUseSym').checked;
+        appData.settings.id.exclude = document.getElementById('idExclude').value;
+        appData.settings.id.excludeFirst = document.getElementById('idExcludeFirst').value;
+
+        appData.settings.pin.length = parseInt(document.getElementById('pinLength').value);
+        appData.settings.pin.useNum = document.getElementById('pinUseNum').checked;
+        appData.settings.pin.useUpper = document.getElementById('pinUseUpper').checked;
+        appData.settings.pin.useLower = document.getElementById('pinUseLower').checked;
+        appData.settings.pin.useSym = document.getElementById('pinUseSym').checked;
+        appData.settings.pin.exclude = document.getElementById('pinExclude').value;
+        appData.settings.pin.excludeFirst = document.getElementById('pinExcludeFirst').value;
+
+        appData.settings.generateCount = parseInt(document.getElementById('generateCount').value);
+        saveData();
+    }
+
+    // --- ロジック: 文字列生成 ---
+    function buildCharPool(typeSettings) {
+        let pool = '';
+        if (typeSettings.useNum) pool += CHAR_SETS.num;
+        if (typeSettings.useUpper) pool += CHAR_SETS.upper;
+        if (typeSettings.useLower) pool += CHAR_SETS.lower;
+        if (typeSettings.useSym) pool += CHAR_SETS.sym;
+
+        if (typeSettings.exclude) {
+            const excludeRegex = new RegExp(`[${escapeRegex(typeSettings.exclude)}]`, 'g');
+            pool = pool.replace(excludeRegex, '');
+        }
+        return pool;
+    }
+
+    function escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function generateRandomString(length, pool, excludeFirstChars) {
+        let result = '';
+        const poolLength = pool.length;
+        
+        let firstChar = '';
+        let attempts = 0;
+        do {
+            firstChar = pool.charAt(Math.floor(Math.random() * poolLength));
+            attempts++;
+            if (attempts > 2000) throw new Error("1文字目の生成ルールが厳しすぎます。");
+        } while (excludeFirstChars.includes(firstChar));
+        result += firstChar;
+
+        for (let i = 1; i < length; i++) {
+            result += pool.charAt(Math.floor(Math.random() * poolLength));
+        }
+        return result;
+    }
+
+    // --- ロジック: 理論値計算 ---
+    function calculateTheoreticalMax(length, poolLength) {
+        if (poolLength === 0) return 0;
+        return Math.pow(poolLength, length);
+    }
+
+    // --- ロジック: メイン生成処理 ---
+    function generateData() {
+        saveSettingsFromUI();
+        
+        const settings = appData.settings;
+        const count = settings.generateCount;
+
+        const idPool = buildCharPool(settings.id);
+        const pinPool = buildCharPool(settings.pin);
+
+        if (idPool.length === 0) return alert("IDに使用できる文字がありません。ルールを見直してください。");
+        if (pinPool.length === 0) return alert("PINに使用できる文字がありません。ルールを見直してください。");
+
+        const idTheoreticalMax = calculateTheoreticalMax(settings.id.length, idPool.length);
+        const pinTheoreticalMax = calculateTheoreticalMax(settings.pin.length, pinPool.length);
+        const totalPossibleCombinations = Math.min(idTheoreticalMax, pinTheoreticalMax);
+        
+        const currentTotalUsed = appData.usedIds.length;
+        const generationLimit = 10000;
+        const theoreticalLimitThreshold = 100000;
+
+        if (count > generationLimit) {
+             alert(`生成件数が ${generationLimit}件 を超えています。処理に時間がかかるか、失敗する可能性があります。`);
+        }
+
+        let theoreticalMaxWarning = false;
+        if (totalPossibleCombinations > 0) {
+            if (currentTotalUsed + count > theoreticalLimitThreshold || count > theoreticalLimitThreshold) {
+                theoreticalMaxWarning = true;
+            }
+        } else {
+            if (currentTotalUsed + count > theoreticalLimitThreshold) {
+                theoreticalMaxWarning = true;
+            }
+        }
+
+        if (theoreticalMaxWarning) {
+            document.getElementById('theoreticalLimitAlert').style.display = 'block';
+            if (!confirm("警告: 設定されたルールでは、理論上の最大生成可能件数を超過する、または非常に近い状態です。\n生成に時間がかかるか、失敗する可能性があります。\n続行しますか？")) {
+                document.getElementById('theoreticalLimitAlert').style.display = 'none';
+                return;
+            }
+            document.getElementById('theoreticalLimitAlert').style.display = 'none';
+        } else {
+             document.getElementById('theoreticalLimitAlert').style.display = 'none';
+        }
+
+        const usedIdsSet = new Set(appData.usedIds);
+        const usedPinsSet = new Set(appData.usedPins);
+
+        let newBatch = [];
+        let newIds = [];
+        let newPins = [];
+
+        const idExcludeFirstChars = settings.id.excludeFirst;
+        const pinExcludeFirstChars = settings.pin.excludeFirst;
+
+        try {
+            const maxAttemptsPerItem = 2000;
+            let totalAttempts = 0;
+            const maxTotalAttempts = count * maxAttemptsPerItem * 2;
+
+            for (let i = 0; i < count; i++) {
+                let newId, newPin;
+                let idAttempts = 0;
+                let pinAttempts = 0;
+
+                do {
+                    newId = generateRandomString(settings.id.length, idPool, idExcludeFirstChars);
+                    idAttempts++;
+                    totalAttempts++;
+                    if (idAttempts > maxAttemptsPerItem || totalAttempts > maxTotalAttempts) throw new Error("IDの生成に失敗しました。ルールが厳しすぎるか、組み合わせが枯渇しています。");
+                } while (usedIdsSet.has(newId));
+                usedIdsSet.add(newId);
+
+                do {
+                    newPin = generateRandomString(settings.pin.length, pinPool, pinExcludeFirstChars);
+                    pinAttempts++;
+                    totalAttempts++;
+                    if (pinAttempts > maxAttemptsPerItem || totalAttempts > maxTotalAttempts) throw new Error("PINの生成に失敗しました。ルールが厳しすぎるか、組み合わせが枯渇しています。");
+                } while (usedPinsSet.has(newPin));
+                usedPinsSet.add(newPin);
+
+                newBatch.push({ id: newId, pin: newPin });
+                newIds.push(newId);
+                newPins.push(newPin);
+            }
+        } catch (e) {
+            alert("生成エラー: " + e.message);
+            return;
+        }
+
+        const now = new Date();
+        const batchInfo = {
+            batchId: 'BATCH_' + now.getTime(),
+            date: now.toLocaleString('ja-JP'),
+            count: count,
+            idRules: { ...settings.id },
+            pinRules: { ...settings.pin },
+            data: newBatch // ★生成したデータ本体を履歴にも保存する
+        };
+
+        appData.history.unshift(batchInfo);
+        appData.usedIds.push(...newIds);
+        appData.usedPins.push(...newPins);
+        
+        saveData();
+        currentGeneratedBatch = newBatch;
+        
+        updateUI();
+        renderPreview();
+        
+        document.getElementById('resultArea').style.display = 'block';
+        alert(`${count}件の生成が完了しました！`);
+    }
+
+    // --- UI更新処理 ---
+    function updateUI() {
+        let totalCount = appData.history.reduce((sum, record) => sum + record.count, 0);
+        document.getElementById('statusTotalCreated').innerText = `総生成履歴: ${totalCount.toLocaleString()}件`;
+        document.getElementById('statusUsedIds').innerText = `登録済ID数: ${appData.usedIds.length.toLocaleString()} / 登録済PIN数: ${appData.usedPins.length.toLocaleString()}`;
+
+        const tbody = document.getElementById('historyTable');
+        tbody.innerHTML = '';
+        if (appData.history.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">履歴はありません</td></tr>';
+        } else {
+            appData.history.forEach(record => {
+                const tr = document.createElement('tr');
+                const formatRules = (rules) => {
+                    let parts = [];
+                    if (rules.length !== undefined) parts.push(`${rules.length}桁`);
+                    if (rules.useNum) parts.push('数字');
+                    if (rules.useUpper) parts.push('大文字');
+                    if (rules.useLower) parts.push('小文字');
+                    if (rules.useSym) parts.push('記号');
+                    if (rules.exclude) parts.push(`除外:${rules.exclude}`);
+                    if (rules.excludeFirst) parts.push(`1桁除外:${rules.excludeFirst}`);
+                    return parts.join(', ');
+                };
+
+                // データが存在するかどうかでボタンの表示を切り替え
+                const hasData = record.data && record.data.length > 0;
+                const downloadBtn = hasData 
+                    ? `<button class="btn btn-history btn-sm" onclick="downloadHistoricalData('${record.batchId}')">CSV出力</button>`
+                    : `<span style="color:#999; font-size:0.8em;">データなし</span>`;
+
+                tr.innerHTML = `
+                    <td>${record.date}</td>
+                    <td>${record.count.toLocaleString()} 件</td>
+                    <td style="font-size:0.8em;">${formatRules(record.idRules)}</td>
+                    <td style="font-size:0.8em;">${formatRules(record.pinRules)}</td>
+                    <td style="text-align:center;">${downloadBtn}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    }
+
+    function renderPreview() {
+        document.getElementById('currentCount').innerText = `(${currentGeneratedBatch.length}件)`;
+        const tbody = document.getElementById('previewTable');
+        tbody.innerHTML = '';
+        
+        const displayLimit = Math.min(currentGeneratedBatch.length, 10);
+        for (let i = 0; i < displayLimit; i++) {
+            const item = currentGeneratedBatch[i];
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${i + 1}</td><td>${item.id}</td><td>${item.pin}</td>`;
+            tbody.appendChild(tr);
+        }
+    }
+
+    // --- エクスポート・管理系 ---
+    function escapeCSV(val) {
+        val = String(val);
+        if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+            return '"' + val.replace(/"/g, '""') + '"';
+        }
+        return val;
+    }
+
+    // 直近の生成分をCSVダウンロード
+    function downloadCSV() {
+        if (currentGeneratedBatch.length === 0) return alert("エクスポートするデータがありません。");
+        exportBatchToCSV(currentGeneratedBatch, `tickets_${new Date().toISOString().replace(/[-T:]/g, '').split('.')[0]}.csv`);
+    }
+
+    // 過去の履歴データを再ダウンロード
+    function downloadHistoricalData(batchId) {
+        const targetBatch = appData.history.find(b => b.batchId === batchId);
+        if (!targetBatch || !targetBatch.data) {
+            return alert("この履歴のデータ本体が見つかりません。");
+        }
+        // 日付文字列をファイル名用に安全な形式に変換（例: 2023/10/24 15:30:00 -> 20231024_153000）
+        const safeDateStr = targetBatch.date.replace(/[\/\s:]/g, '_').replace('__', '_');
+        exportBatchToCSV(targetBatch.data, `tickets_history_${safeDateStr}.csv`);
+    }
+
+    // 共通のCSV出力処理
+    function exportBatchToCSV(dataArray, filename) {
+        let csvContent = "ID,PIN\n";
+        dataArray.forEach(item => {
+            csvContent += `${escapeCSV(item.id)},${escapeCSV(item.pin)}\n`;
+        });
+        const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+        const blob = new Blob([bom, csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // バックアップJSONエクスポート
+    function exportBackupJSON() {
+        if (appData.usedIds.length === 0 && appData.history.length === 0) return alert("バックアップするデータがありません。");
+        const dataStr = JSON.stringify(appData);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", `ticket_generator_backup_${new Date().toISOString().replace(/[-T:]/g, '').split('.')[0]}.json`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // バックアップJSONインポート
+    function importBackupJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const importedData = JSON.parse(e.target.result);
+                if (importedData && typeof importedData === 'object' &&
+                    importedData.settings && importedData.history &&
+                    importedData.usedIds && importedData.usedPins) {
+                    
+                    appData = {
+                        settings: { ...getDefaultSettings(), ...importedData.settings },
+                        history: importedData.history || [],
+                        usedIds: importedData.usedIds || [],
+                        usedPins: importedData.usedPins || []
+                    };
+                    saveData();
+                    applySettingsToUI();
+                    updateUI();
+                    document.getElementById('resultArea').style.display = 'none';
+                    alert("履歴データを復元しました。");
+                } else {
+                    alert("無効なバックアップファイルです。フォーマットが一致しません。");
+                }
+            } catch (err) {
+                alert("ファイルの読み込みに失敗しました。ファイルが破損しているか、JSON形式ではありません。");
+            }
+            document.getElementById('fileInput').value = '';
+        };
+        reader.onerror = function() {
+             alert("ファイルの読み込み中にエラーが発生しました。");
+        };
+        reader.readAsText(file);
+    }
+
+    // 全履歴リセット
+    function clearHistory() {
+        if (confirm("本当にすべての履歴、登録済みID/PIN、および設定を削除しますか？\n（この操作は元に戻せません。必要に応じて事前にバックアップを行ってください）")) {
+            appData = {
+                settings: getDefaultSettings(),
+                history: [],
+                usedIds: [],
+                usedPins: []
+            };
+            saveData();
+            applySettingsToUI();
+            updateUI();
+            document.getElementById('resultArea').style.display = 'none';
+            alert("すべてのデータと設定をリセットしました。");
+        }
+    }
+
+    // 各入力フィールドからフォーカスが外れた際などに設定を保存
+    const settingInputs = document.querySelectorAll('#idLength, #idExclude, #idExcludeFirst, #pinLength, #pinExclude, #pinExcludeFirst, #generateCount');
+    const settingCheckboxes = document.querySelectorAll('input[type="checkbox"][id^="idUse"], input[type="checkbox"][id^="pinUse"]');
+
+    settingInputs.forEach(input => {
+        input.addEventListener('blur', () => saveSettingsFromUI());
+        input.addEventListener('change', () => saveSettingsFromUI());
+    });
+    settingCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => saveSettingsFromUI());
+    });
+
+</script>
+
+</body>
+</html>

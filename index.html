@@ -46,13 +46,11 @@
             font-size: 1.8rem;
         }
 
-        /* タブメニュー */
         .tab-menu {
             display: flex;
             justify-content: center;
             gap: 10px;
             margin-bottom: 25px;
-            flex-wrap: wrap;
         }
 
         .tab-btn {
@@ -81,7 +79,6 @@
             display: block;
         }
 
-        /* カード・コンポーネント */
         .card {
             background-color: var(--card-bg);
             border-radius: 8px;
@@ -146,6 +143,7 @@
 
         .form-group input[type="number"],
         .form-group input[type="text"],
+        .form-group textarea,
         .form-group select {
             width: 100%;
             padding: 8px;
@@ -155,7 +153,13 @@
             background-color: white;
         }
 
-        /* 読込インジケーター */
+        .form-group textarea {
+            font-family: monospace;
+            font-size: 0.8rem;
+            resize: vertical;
+        }
+
+        /* ファイルインジケーター用バッジ */
         .file-status {
             display: inline-block;
             padding: 2px 8px;
@@ -168,16 +172,6 @@
         .file-status.loaded {
             background-color: #55efc4;
             color: #0b8457;
-        }
-
-        /* ファイル読込完了ハイライト */
-        .loaded-input-wrapper {
-            background-color: #eafaf1 !important;
-            border-color: #2ecc71 !important;
-            border-style: solid !important;
-            border-width: 1px !important;
-            padding: 10px !important;
-            border-radius: 6px !important;
         }
 
         .checkbox-group {
@@ -209,8 +203,14 @@
             font-weight: bold;
         }
 
-        .btn:hover { opacity: 0.9; }
-        .btn-sm { padding: 5px 10px; font-size: 0.85rem; }
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
 
         .btn-primary { background-color: var(--accent-color); }
         .btn-secondary { background-color: var(--secondary-color); }
@@ -246,7 +246,9 @@
             text-align: left;
         }
 
-        th { background-color: #f1f2f6; }
+        th {
+            background-color: #f1f2f6;
+        }
 
         .help-text {
             font-size: 0.8rem;
@@ -267,7 +269,7 @@
             margin-top: 10px;
         }
 
-        /* 警告一覧アコーディオン */
+        /* 警告一覧アコーディオン用 */
         .accordion-container {
             margin-bottom: 8px;
             border: 1px solid #fed7d7;
@@ -307,10 +309,15 @@
             color: #2d3748;
         }
 
-        .accordion-body p { margin-bottom: 8px; }
-        .accordion-body p strong { color: #1a202c; }
+        .accordion-body p {
+            margin-bottom: 8px;
+        }
 
-        /* トラブルシューター */
+        .accordion-body p strong {
+            color: #1a202c;
+        }
+
+        /* トラブルシューター用スタイル */
         .trouble-card {
             border: 1px solid #f5c6cb;
             background-color: #f8d7da;
@@ -321,9 +328,20 @@
             display: none;
         }
 
-        .trouble-card h3 { font-size: 1rem; margin-bottom: 8px; font-weight: bold; }
-        .trouble-card ul { margin-left: 20px; font-size: 0.85rem; }
-        .trouble-card li { margin-bottom: 5px; }
+        .trouble-card h3 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .trouble-card ul {
+            margin-left: 20px;
+            font-size: 0.85rem;
+        }
+
+        .trouble-card li {
+            margin-bottom: 5px;
+        }
 
         .mapping-container {
             display: flex;
@@ -390,59 +408,89 @@
             font-weight: bold;
         }
         .alert-warning { background-color: #f39c12; }
+        
+        /* コピペ用テキストエリアの初期表示化 */
+        .paste-textarea-container {
+            display: block;
+            margin-top: 8px;
+        }
 
-        /* マニュアル専用スタイル */
+        .file-input-container {
+            display: none;
+            margin-top: 8px;
+        }
+
+        /* 読込完了時のラッパーハイライト */
+        .form-group.loaded-input-wrapper {
+            background-color: #f0fff4;
+            border-color: var(--success-color) !important;
+        }
+
+        /* マニュアルセクション */
         .manual-section {
-            margin-bottom: 30px;
+            margin-bottom: 24px;
         }
+
         .manual-section h3 {
+            font-size: 1.1rem;
             color: var(--primary-color);
-            font-size: 1.15rem;
-            margin-bottom: 12px;
-            border-left: 4px solid var(--accent-color);
-            padding-left: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border-color);
         }
+
         .manual-section p {
-            margin-bottom: 12px;
-            font-size: 0.95rem;
+            margin-bottom: 8px;
+            font-size: 0.92rem;
         }
-        .manual-section ul, .manual-section ol {
-            margin-left: 25px;
-            margin-bottom: 15px;
-            font-size: 0.95rem;
+
+        .manual-section ul,
+        .manual-section ol {
+            margin-left: 20px;
+            margin-bottom: 8px;
+            font-size: 0.92rem;
         }
+
         .manual-section li {
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
+
         .manual-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        .manual-table th, .manual-table td {
-            border: 1px solid var(--border-color);
-            padding: 10px;
-            font-size: 0.9rem;
-        }
-        .manual-table th {
-            background-color: #eaeded;
-            font-weight: bold;
+            margin: 10px 0 16px;
+            font-size: 0.88rem;
         }
 
-        /* 開発情報フッター */
+        .manual-table th,
+        .manual-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            vertical-align: top;
+        }
+
+        .manual-table th {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+        }
+
+        /* フッター */
         .footer-credits {
             text-align: center;
-            padding: 30px 10px;
-            margin-top: 50px;
-            border-top: 1px solid var(--border-color);
-            color: #7f8c8d;
+            margin-top: 30px;
+            padding: 16px;
             font-size: 0.85rem;
+            color: #7f8c8d;
+            border-top: 1px solid var(--border-color);
             line-height: 1.8;
         }
+
         .footer-credits a {
             color: var(--accent-color);
             text-decoration: none;
         }
+
         .footer-credits a:hover {
             text-decoration: underline;
         }
@@ -467,12 +515,14 @@
             
             <div class="manual-section">
                 <p>本システムは、学校祭（開成祭）の入場管理において、生徒が入力したMicrosoft Forms回答情報とチケットの固有ID/PINをローカル環境で安全に紐付けるための教員用ツールです。</p>
+                <p style="color: var(--danger-color); font-weight: bold;">💡【公務用PC対策・推奨コピペフロー搭載】: <br>
+                自治体や学校の強固な情報セキュリティ制限（ファイルの選択・アップロード制限）を確実に回避し、最も安定したデータ取り込みを可能にするため、<strong>「CSV出力 → メモ帳で開く → テキストをコピペする」</strong>手順を標準仕様としています。</p>
             </div>
 
             <div class="manual-section">
                 <h3>第1章：本システムの特徴と安全性について</h3>
                 <p><strong>■ 個人情報保護と機密保護について</strong><br>
-                本システムは、ブラウザ内部でのみ動作する「完全ローカル処理型」プログラムです。アップロードした名簿データやForms回答データがインターネット上のサーバーに送信されることは一切ありません。オフライン環境でもすべての動作を保証しておりますので、機密保護の観点からも安心してお使いいただけます。</p>
+                本システムは、ブラウザ内部でのみ動作する「完全ローカル処理型」プログラムです。アップロードや貼り付けを行った名簿データやForms回答データがインターネット上のサーバーに送信されることは一切ありません。オフライン環境でもすべての動作を保証しておりますので、機密保護の観点からも安心してお使いいただけます。</p>
                 <p><strong>■ システムでできること・できないこと</strong></p>
                 <table class="manual-table">
                     <thead>
@@ -499,8 +549,8 @@
             </div>
 
             <div class="manual-section">
-                <h3>第2章：事前準備（回答フォームの作成とCSV名簿の用意）</h3>
-                <p>結合処理を行う前に、事前に以下の「Microsoft Forms回答」と「配付制限データ」を用意してください。</p>
+                <h3>第2章：事前準備（回答フォームの作成と名簿の用意）</h3>
+                <p>結合処理を行う前に、事前に以下の「Microsoft Forms回答」と「配付制限データ」をご用意ください。</p>
                 
                 <p><strong>2-1. Microsoft Formsの設問設計</strong><br>
                 回答を得る際、以下の設問を必須として設計してください。</p>
@@ -510,45 +560,21 @@
                     <li><strong>来場客入力欄</strong>: 「氏名」と「続柄」の設問を入力最大想定人数分用意してください。</li>
                 </ul>
 
-                <p><strong>2-2. 準備する4つのファイル</strong></p>
-                <table class="manual-table">
-                    <thead>
-                        <tr>
-                            <th>必要ファイル</th>
-                            <th>システム上の表記名</th>
-                            <th>内容詳細</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>①</strong></td>
-                            <td>年組番号と許可した土曜券(旧招待券)の枚数</td>
-                            <td>クラス（または生徒）ごとの配付上限枠が記入された割り当てマスターCSV。</td>
-                        </tr>
-                        <tr>
-                            <td><strong>②</strong></td>
-                            <td>【保護者公開】入場者フォーム回答</td>
-                            <td>完了時刻、年組番号、生徒氏名、来場同行者全員の氏名/続柄が並ぶForms出力CSV。</td>
-                        </tr>
-                        <tr>
-                            <td><strong>③</strong></td>
-                            <td>【一般公開】招待者フォーム回答</td>
-                            <td>完了時刻、年組番号、生徒氏名、一般招待客全員の氏名/続柄が並ぶForms出力CSV。</td>
-                        </tr>
-                        <tr>
-                            <td><strong>④</strong></td>
-                            <td>ID/PIN リスト</td>
-                            <td>「① ID/PINの新規生成」タブであらかじめ出力したチケットの空番号CSV。</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <p><strong>2-2. 準備する4つのファイルと「推奨コピペ」による安定運用手順</strong><br>
+                学校内PCでの書式ばらつきを防ぎ、最も安全にデータを読み込ませるための標準手順です。</p>
+                <ol>
+                    <li>ExcelファイルやForms回答データを、名前を付けて保存から「<strong>CSV (カンマ区切り)</strong>」形式で保存する。</li>
+                    <li>保存したCSVファイルを、Windowsアクセサリ等にある標準の「<strong>メモ帳</strong>」（Notepad）で開く。</li>
+                    <li>メモ帳が開いたら、キーボードの <strong>Ctrl + A</strong>（すべて選択）を押して、<strong>Ctrl + C</strong>（コピー）をする。</li>
+                    <li>本システムの結合処理タブ（②）を開き、対応する入力エリアの中に <strong>Ctrl + V</strong>（貼り付け）を行う。</li>
+                </ol>
             </div>
 
             <div class="manual-section">
                 <h3>第3章：システム全体の処理フロー</h3>
                 <ol>
                     <li><strong>STEP 1</strong>: 「① ID/PINの新規生成」タブで空のチケットリストを発行・ダウンロード。</li>
-                    <li><strong>STEP 2</strong>: 「② Formsデータの結合」タブへ進み、事前準備した4つのCSVファイルを読み込ませる。</li>
+                    <li><strong>STEP 2</strong>: 「② Formsデータの結合」タブへ進み、事前準備した4つのファイルをメモ帳経由でコピーし、各ボックスに貼り付ける。</li>
                     <li><strong>STEP 3</strong>: システムが推測したForms列のマッピング紐付けが正しいか確認する。</li>
                     <li><strong>STEP 4</strong>: 処理実行を行い、配付枠上限を超えた生徒（自動カット対象者）の調整結果を確認する。</li>
                     <li><strong>STEP 5</strong>: 結合完了した各種ファイルを保存し、Web発券システムへのマスタ登録およびWordを用いた通知書印刷（差し込み印刷）を実行する。</li>
@@ -558,14 +584,14 @@
             <div class="manual-section">
                 <h3>第4章：システムの操作・UIの見方</h3>
                 
-                <p><strong>■ ファイル読込時のハイライト表示（UIと同じ挙動）</strong><br>
-                CSVファイルの読み込みが正常に行われると、フォーム領域がソフトグリーンにハイライトされ、読込完了状態を表すバッジが表示されます。</p>
+                <p><strong>■ テキスト貼り付け完了時の表示（UIと同じ挙動）</strong><br>
+                メモ帳からのテキスト貼り付け、またはファイル選択の読込が正常に行われると、フォーム領域がソフトグリーンにハイライトされ、読込完了状態を表すバッジが表示されます。</p>
                 <div class="form-group loaded-input-wrapper" style="margin-bottom: 20px;">
                     <label>
-                        サンプルファイル選択フォーム
+                        サンプルコピペ入力完了モデル
                         <span class="file-status loaded">✅ 読込完了 (842行)</span>
                     </label>
-                    <input type="file" disabled>
+                    <textarea disabled style="height:60px;">年組番号,招待者1_氏名,招待者1_続柄...&#10;1102,札幌太郎,友人...</textarea>
                 </div>
 
                 <p><strong>■ 列の紐付け（マッピング）の確認ポイント</strong><br>
@@ -594,9 +620,9 @@
                     <li><strong>Web発券システムへの登録</strong>: <br>
                     出力された <code>system_import.csv</code> は、Web発券サーバー（来場者がスマホ等でログインする画面）の管理画面にそのままインポートしてご使用ください。</li>
                     <li><strong>配付用通知プリントの作成（Wordの差し込み印刷機能）</strong>: <br>
-                    生徒配付用のプリント作成には <code>print_merge.csv</code> を使用します。Wordで作成した配付ひな形を開き、「差し込み文書」タブから「宛先の選択 $\rightarrow$ 既存のリストを使用」でCSVを指定することで、全生徒分のID・PINが差し込まれたプリントを一括出力できます。</li>
+                    生徒配付用のプリント作成には <code>print_merge.csv</code> を使用します。Wordで作成した配付ひな形を開き、「差し込み文書」タブから「宛先の選択 → 既存のリストを使用」でCSVを指定することで、全生徒分のID・PINが差し込まれたプリントを一括出力できます。</li>
                     <li><strong>調整対象者への個別案内・対応</strong>: <br>
-                    制限により招待客が除外された生徒は、ダウンロードした <code>warnings_list_adjust.csv</code> を用いて個別に通知書を一括作成し、「招待制限数を超過したため一部のお客様の登録をカットしました」等の個別事後連絡を円滑に行うことができます。</li>
+                    制限により招待客が除外された生徒は、ダウンロードした <code>warnings_list_adjust.csv</code> を用いて個別に通知書を一括作成し、「制限枠を超過したため、一部のお客様の登録をカットしました」等の個別事後連絡を円滑に行うことができます。</li>
                 </ul>
             </div>
         </div>
@@ -726,7 +752,7 @@
             <h3>🔰 ② Formsデータの結合（本番処理）の使い方</h3>
             <p>Forms回答データと、事前作成した空のID/PINリストを紐付け、「システム登録用」「印刷用」のデータを作ります。</p>
             <ol>
-                <li><strong>STEP 1: 各ファイルを選択</strong>します。最大枠数はCSVの形式に合わせてシステムが自動検出します。</li>
+                <li><strong>STEP 1: 各データ入力</strong>を行います。最初からコピペ入力用のボックスが表示されています。</li>
                 <li><strong>STEP 2: 列の紐付け（マッピング）</strong>が自動推測されます。ズレがある場合は正しい項目を選択し直してください。</li>
                 <li><strong>STEP 3: 処理実行ボタン</strong>を押し、完了後に生成される2つのファイルを保存します。</li>
             </ol>
@@ -734,14 +760,14 @@
 
         <!-- Dynamic Limit Configuration -->
         <div class="card">
-            <h2>1. 公開日ごとの最大対応人数の設定（CSV読み込み時に自動調整されます）</h2>
+            <h2>1. 公開日ごとの最大対応人数の設定（データ読み込み時に自動調整されます）</h2>
             <div class="grid-2col">
                 <div class="form-group" id="parentGroup">
                     <label>保護者公開日の1家庭あたりの最大人数</label>
                     <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 5px;">
                         <input type="number" id="maxParents" value="5" min="1" max="20" style="width: 100px; background-color: #f1f2f6;" disabled>
                         <label class="checkbox-label" style="font-weight: bold; color: var(--success-color);">
-                            <input type="checkbox" id="parentUnlimited" checked onchange="toggleParentUnlimited()"> 無制限にする（CSVから自動検出）
+                            <input type="checkbox" id="parentUnlimited" checked onchange="toggleParentUnlimited()"> 無制限にする（自動検出）
                         </label>
                     </div>
                     <p class="help-text">※保護者の入場は基本無制限です。「無制限」のときは、回答データ(②)の設問から、存在する最大の入力枠（人数列）を自動検出します。チェックを外すと手動での制限が可能です。</p>
@@ -749,52 +775,107 @@
                 <div class="form-group" id="inviteeGroup">
                     <label>一般公開日の1生徒あたりの最大招待可能数</label>
                     <input type="number" id="maxInvitees" value="3" min="1" max="20" onchange="onLimitConfigChange()">
-                    <p class="help-text">※一般公開日の招待客回答データ(③)を選択すると、CSV内に存在する最大設問数に自動調整されます。</p>
+                    <p class="help-text">※一般公開日の招待客回答データ(③)を入力すると、自動調整されます。</p>
                 </div>
             </div>
         </div>
 
-        <!-- File Uploads -->
+        <!-- File Uploads & Copy-Paste Fallback (コピペ入力をデフォルトに設定) -->
         <div class="card">
-            <h2>2. データファイル(CSV)の読み込み</h2>
-            <div class="form-group" id="fg_quota">
+            <h2>2. データの読み込み（メモ帳テキストのコピペ、またはファイル選択）</h2>
+            <p class="help-text" style="margin-bottom:15px; color:#e67e22;">※Excel等から書き出したCSVを「メモ帳」で開き、全選択（Ctrl+A）してコピーし、下記の各テキストエリアへ貼り付け（Ctrl+V）てください。</p>
+            
+            <!-- ① 割り当てマスター -->
+            <div class="form-group" id="fg_quota" style="border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; margin-bottom:15px;">
                 <label>
                     ① 年組番号と許可した土曜券(旧招待券)の枚数
                     <span id="badge_quota" class="file-status">未読込</span>
                 </label>
-                <input type="file" id="quotaFile" accept=".csv">
+                
+                <!-- 初期状態で表示されるコピペエリア -->
+                <div id="paste_area_quota" class="paste-textarea-container">
+                    <p class="help-text" style="color:var(--accent-color);">メモ帳等でファイルを開いて全コピーし、以下に貼り付けてください。</p>
+                    <textarea id="paste_quota" rows="5" placeholder="メモ帳で開いたデータをここにペーストしてください" oninput="handlePastedInput('quota')"></textarea>
+                </div>
+                
+                <!-- ファイル選択エリア（デフォルトでは非表示） -->
+                <div id="file_area_quota" class="file-input-container">
+                    <input type="file" id="quotaFile" accept=".csv" style="width:100%;">
+                </div>
+
+                <div style="text-align: right; margin-top:5px;">
+                    <button id="btn_toggle_quota" class="btn btn-secondary btn-sm" onclick="toggleInputMethod('quota')">ファイル選択に切り替える</button>
+                </div>
                 <p class="help-text">A列に「年組番号」、B列に「許可した土曜券の枚数」が入ったリスト（割り当てマスター）</p>
             </div>
-            <div class="form-group" id="fg_formsPar">
+
+            <!-- ② 保護者Forms -->
+            <div class="form-group" id="fg_formsPar" style="border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; margin-bottom:15px;">
                 <label>
                     ② 【保護者公開】入場者フォーム回答
                     <span id="badge_formsPar" class="file-status">未読込</span>
                 </label>
-                <input type="file" id="formsParFile" accept=".csv">
-                <div class="help-text" style="margin-bottom: 5px;">
-                    Formsから出力したCSVデータ。
-                    データの列に「完了時刻 (タイムスタンプ)」「年組番号」「生徒氏名」「入場予定人数」、および「入場者ごとの氏名・続柄」が含まれている必要があります。<br>
-                    【完了時刻が必要な理由】: 同じ生徒が複数回送信（重複回答）した場合に、最も新しい（最後の）回答データのみを採用して重複排除（名寄せ）を行うために利用します。
+                
+                <div id="paste_area_formsPar" class="paste-textarea-container">
+                    <p class="help-text" style="color:var(--accent-color);">メモ帳等でファイルを開いて全コピーし、以下に貼り付けてください。</p>
+                    <textarea id="paste_formsPar" rows="5" placeholder="メモ帳で開いたデータをここにペーストしてください" oninput="handlePastedInput('formsPar')"></textarea>
+                </div>
+
+                <div id="file_area_formsPar" class="file-input-container">
+                    <input type="file" id="formsParFile" accept=".csv" style="width:100%;">
+                </div>
+
+                <div style="text-align: right; margin-top:5px;">
+                    <button id="btn_toggle_formsPar" class="btn btn-secondary btn-sm" onclick="toggleInputMethod('formsPar')">ファイル選択に切り替える</button>
+                </div>
+                <div class="help-text" style="margin-top: 5px;">
+                    データの列に「完了時刻 (タイムスタンプ)」「年組番号」「生徒氏名」「入場予定人数」、および「入場者ごとの氏名・続柄」が含まれている必要があります。
                 </div>
             </div>
-            <div class="form-group" id="fg_formsInv">
+
+            <!-- ③ 一般招待者Forms -->
+            <div class="form-group" id="fg_formsInv" style="border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; margin-bottom:15px;">
                 <label>
                     ③ 【一般公開】招待者フォーム回答
                     <span id="badge_formsInv" class="file-status">未読込</span>
                 </label>
-                <input type="file" id="formsInvFile" accept=".csv">
-                <div class="help-text" style="margin-bottom: 5px;">
-                    Formsから出力したCSVデータ。
-                    データの列に「完了時刻 (タイムスタンプ)」「年組番号」「生徒氏名」、および「招待者ごとの氏名・続柄」が含まれている必要があります。<br>
-                    【完了時刻が必要な理由】: 複数回回答を送信された場合に、最も新しい回答のみを自動採用し、名寄せを行うために利用します。
+                
+                <div id="paste_area_formsInv" class="paste-textarea-container">
+                    <p class="help-text" style="color:var(--accent-color);">メモ帳等でファイルを開いて全コピーし、以下に貼り付けてください。</p>
+                    <textarea id="paste_formsInv" rows="5" placeholder="メモ帳で開いたデータをここにペーストしてください" oninput="handlePastedInput('formsInv')"></textarea>
+                </div>
+
+                <div id="file_area_formsInv" class="file-input-container">
+                    <input type="file" id="formsInvFile" accept=".csv" style="width:100%;">
+                </div>
+
+                <div style="text-align: right; margin-top:5px;">
+                    <button id="btn_toggle_formsInv" class="btn btn-secondary btn-sm" onclick="toggleInputMethod('formsInv')">ファイル選択に切り替える</button>
+                </div>
+                <div class="help-text" style="margin-top: 5px;">
+                    データの列に「完了時刻 (タイムスタンプ)」「年組番号」「生徒氏名」、および「招待者ごとの氏名・続柄」が含まれている必要があります。
                 </div>
             </div>
-            <div class="form-group" id="fg_idpin">
+
+            <!-- ④ ID/PIN リスト -->
+            <div class="form-group" id="fg_idpin" style="border: 1px solid var(--border-color); padding: 12px; border-radius: 6px;">
                 <label>
                     ④ ID/PIN リスト
                     <span id="badge_idpin" class="file-status">未読込</span>
                 </label>
-                <input type="file" id="idpinFile" accept=".csv">
+                
+                <div id="paste_area_idpin" class="paste-textarea-container">
+                    <p class="help-text" style="color:var(--accent-color);">生成した空チケットデータをExcel等からCSVにしてメモ帳で開き、全コピーして以下に貼り付けてください。</p>
+                    <textarea id="paste_idpin" rows="5" placeholder="メモ帳で開いたデータをここにペーストしてください" oninput="handlePastedInput('idpin')"></textarea>
+                </div>
+
+                <div id="file_area_idpin" class="file-input-container">
+                    <input type="file" id="idpinFile" accept=".csv" style="width:100%;">
+                </div>
+
+                <div style="text-align: right; margin-top:5px;">
+                    <button id="btn_toggle_idpin" class="btn btn-secondary btn-sm" onclick="toggleInputMethod('idpin')">ファイル選択に切り替える</button>
+                </div>
                 <p class="help-text">「① ID/PINの新規生成」でダウンロードした空チケットリストを指定します</p>
             </div>
         </div>
@@ -802,7 +883,7 @@
         <!-- Dynamic Column Mapping -->
         <div class="card" id="mappingCard" style="display: none;">
             <h2>3. Forms列の紐付け（マッピング）確認</h2>
-            <p class="help-text" style="margin-bottom:15px;">※アップロードされたCSVから取得した項目数が自動反映されています。該当する項目をドロップダウンから選択してください。</p>
+            <p class="help-text" style="margin-bottom:15px;">※アップロード、またはペーストされたデータの構成が自動反映されています。該当する項目をドロップダウンから選択してください。</p>
             <div class="mapping-container">
                 <div class="mapping-box">
                     <h3>【保護者公開】フォームの列設定</h3>
@@ -848,7 +929,7 @@
         </div>
     </div>
 
-    <!-- コピーライト・連絡先フッター -->
+    <!-- コピーライト・連絡先フッター（CCライセンス表記を追加） -->
     <div class="footer-credits">
         システムおよびマニュアルに関するお問い合わせ:<br>
         <strong>10期生 安部祥太朗</strong>（連絡先: <a href="mailto:shougayaki2008.icloud.com@gmail.com">shougayaki2008.icloud.com@gmail.com</a>）<br>
@@ -896,6 +977,12 @@
         applySettingsToUI();
         updateUI();
         checkHistoryExpiry();
+
+        // ファイル入力のイベントリスナーをDOMロード後に登録
+        document.getElementById('quotaFile').addEventListener('change', e => loadProcessorFile(e, 'quota'));
+        document.getElementById('formsParFile').addEventListener('change', e => loadProcessorFile(e, 'formsPar'));
+        document.getElementById('formsInvFile').addEventListener('change', e => loadProcessorFile(e, 'formsInv'));
+        document.getElementById('idpinFile').addEventListener('change', e => loadProcessorFile(e, 'idpin'));
     };
 
     function loadData() {
@@ -1142,7 +1229,16 @@
         }
     }
 
-    // ==================== 結合・自動処理ロジック ====================
+    // ==================== タブ2: 自動結合・処理ロジック ====================
+    let quotaMap = new Map();
+    let formsParData = [];
+    let formsInvData = [];
+    let idpinRawData = [];
+    let generatedSystemData = [];
+    let generatedPrintData = [];
+    let flaggedIssues = []; // 警告データの初期化
+    let cutCount = 0;
+
     function buildDynamicMapDefinitions(prefix, labelText, count) {
         let def = [
             { id: prefix + '_Time', label: 'タイムスタンプ(必須)', keys: ['完了時刻', 'Timestamp', 'タイムスタンプ'] },
@@ -1157,6 +1253,57 @@
             def.push({ id: `${prefix}_R${i}`, label: `${labelText}${i} 続柄`, keys: [`${labelText}${i}`, '続柄'] });
         }
         return def;
+    }
+
+    function toggleInputMethod(type) {
+        const pasteArea = document.getElementById(`paste_area_${type}`);
+        const fileArea = document.getElementById(`file_area_${type}`);
+        const btn = document.getElementById(`btn_toggle_${type}`);
+        
+        if (pasteArea.style.display === "none") {
+            pasteArea.style.display = "block";
+            fileArea.style.display = "none";
+            btn.innerText = "ファイル選択に切り替える";
+        } else {
+            pasteArea.style.display = "none";
+            fileArea.style.display = "block";
+            btn.innerText = "コピペ入力に切り替える";
+        }
+    }
+
+    function handlePastedInput(type) {
+        const text = document.getElementById(`paste_${type}`).value.trim();
+        if(!text) return;
+        const parsed = parseCSV(text);
+        if (parsed.length > 0) {
+            if (type === 'quota') {
+                quotaMap.clear();
+                for(let i=1; i<parsed.length; i++) if(parsed[i][0]) quotaMap.set(parsed[i][0], parseInt(parsed[i][1])||0);
+                setElementLoaded('fg_quota', 'badge_quota', parsed.length);
+            } else if (type === 'formsPar') {
+                formsParData = parsed;
+                const isUnlimited = document.getElementById('parentUnlimited').checked;
+                const detectedParents = detectMaxSlots(formsParData[0], '入場者');
+                
+                if (isUnlimited) {
+                    document.getElementById('maxParents').value = detectedParents;
+                }
+                const finalParentsVal = parseInt(document.getElementById('maxParents').value) || 5;
+                buildMappingUI(formsParData[0], buildDynamicMapDefinitions('p', '入場者', finalParentsVal), 'mappingControlsPar');
+                setElementLoaded('fg_formsPar', 'badge_formsPar', parsed.length);
+                checkProcessorReady();
+            } else if (type === 'formsInv') {
+                formsInvData = parsed;
+                const detectedInvitees = detectMaxSlots(formsInvData[0], '招待者');
+                document.getElementById('maxInvitees').value = detectedInvitees;
+                buildMappingUI(formsInvData[0], buildDynamicMapDefinitions('i', '招待者', detectedInvitees), 'mappingControlsInv');
+                setElementLoaded('fg_formsInv', 'badge_formsInv', parsed.length);
+                checkProcessorReady();
+            } else if (type === 'idpin') {
+                idpinRawData = parsed;
+                setElementLoaded('fg_idpin', 'badge_idpin', parsed.length);
+            }
+        }
     }
 
     function toggleParentUnlimited() {
@@ -1200,6 +1347,33 @@
             const iLimit = parseInt(document.getElementById('maxInvitees').value) || 3;
             buildMappingUI(formsInvData[0], buildDynamicMapDefinitions('i', '招待者', iLimit), 'mappingControlsInv');
         }
+    }
+
+    const phoneticMap = { 'A':'エー','B':'ビー','C':'シー','D':'ディー','E':'イー','F':'エフ','G':'ジー','H':'エイチ','I':'アイ','J':'ジェイ','K':'ケー','L':'エル','M':'エム','N':'エヌ','O':'オー','P':'ピー','Q':'キュー','R':'アール','S':'エス','T':'ティー','U':'ユー','V':'ブイ','W':'ダブリュー','X':'エックス','Y':'ワイ','Z':'ゼット' };
+    function getFurigana(pin) { 
+        return pin ? pin.toUpperCase().split('').map(c => phoneticMap[c] || c).join('・') : ''; 
+    }
+
+    function parseCSV(text) {
+        let separator = ',';
+        if (text.includes('\t')) {
+            separator = '\t';
+        }
+        const result = []; let row = []; let inQuotes = false; let currentVal = '';
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            if (inQuotes) {
+                if (char === '"' && text[i+1] === '"') { currentVal += '"'; i++; } 
+                else if (char === '"') { inQuotes = false; } else { currentVal += char; }
+            } else {
+                if (char === '"') { inQuotes = true; } 
+                else if (char === separator) { row.push(currentVal.trim()); currentVal = ''; } 
+                else if (char === '\n') { row.push(currentVal.trim()); result.push(row); row = []; currentVal = ''; } 
+                else if (char !== '\r') { currentVal += char; }
+            }
+        }
+        if (currentVal || row.length > 0) { row.push(currentVal.trim()); result.push(row); }
+        return result;
     }
 
     function setElementLoaded(wrapperId, badgeId, count) {
@@ -1345,8 +1519,8 @@
 
         const allClassNums = Array.from(new Set([...validPar.keys(), ...validInv.keys()])).sort();
         generatedSystemData = []; generatedPrintData = [];
-        flaggedIssues = []; 
-        let cutCount = 0;
+        flaggedIssues = []; // 警告データの初期化
+        cutCount = 0;
 
         try {
             allClassNums.forEach(classNum => {
@@ -1375,7 +1549,7 @@
                     }
                 }
 
-                // 2. 招待者チケットの割り当て
+                // 2. 招待者チケットの割り当て（足切り・警告収集）
                 if(rInv) {
                     let requestedNames = [];
                     let acceptedInvs = [];
@@ -1417,6 +1591,7 @@
                 generatedPrintData.push(printRow);
             });
 
+            // 是正アコーディオン表示の描画
             if (flaggedIssues.length > 0) {
                 const warningsArea = document.getElementById('structuredWarningsArea');
                 const warningsList = document.getElementById('warningsList');
@@ -1487,6 +1662,7 @@
         triggerDl(csv, "print_merge.csv");
     }
 
+    // 是正・警告対象者一覧の個別CSVダウンロード機能
     function downloadWarningsCSV() {
         if (flaggedIssues.length === 0) return alert("調整対象の生徒はいません。");
         let csv = "年組番号,生徒氏名,配付可能制限枠数,申請総数,申請来場者全員,発行された来場者,除外(カット)された来場者\n";

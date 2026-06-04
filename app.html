@@ -577,109 +577,332 @@
     <div id="manualTab" class="tab-content active">
         <div class="card">
             <h2>開成祭チケット発行システム 教員向け利用マニュアル</h2>
-            
-            <div class="manual-section">
-                <p>本システムは、学校祭（開成祭）の入場管理において、生徒が入力したMicrosoft Forms回答情報とチケットの固有ID/PINをローカル環境で安全に紐付けるための教員用ツールです。</p>
-                <p style="color: var(--danger-color); font-weight: bold;">💡【公務用PC対策・推奨コピペフロー搭載】: <br>
-                自治体や学校の強固な情報セキュリティ制限（ファイルの選択・アップロード制限）を確実に回避し、最も安定したデータ取り込みを可能にするため、<strong>「CSV出力 → メモ帳で開く → テキストをコピペする」</strong>手順を標準仕様としています。</p>
-            </div>
 
             <div class="manual-section">
-                <h3>第1章：本システムの特徴と安全性について</h3>
-                <p><strong>■ 個人情報保護と機密保護について</strong><br>
-                本システムは、ブラウザ内部でのみ動作する「完全ローカル処理型」プログラムです。アップロードや貼り付けを行った名簿データやForms回答データがインターネット上のサーバーに送信されることは一切ありません。オフライン環境でもすべての動作を保証しておりますので、機密保護の観点からも安心してお使いいただけます。</p>
-                <p><strong>■ システムでできること・できないこと</strong></p>
+                <p>本マニュアルは、<strong>引き継ぎを受けていない初めての担当者でも</strong>、フォームの作成から本システムの操作、差し込み印刷による通知書の配付まで、一通りの作業を完結できるよう記載しています。上から順にお読みください。</p>
+                <div style="background:#fff3cd; border-left:4px solid #f39c12; padding:12px 16px; border-radius:0 6px 6px 0; margin-top:10px;">
+                    <strong>💡 公務用PC対策について</strong><br>
+                    学校や自治体の情報セキュリティ制限でファイルの直接アップロードが制限されている場合でも、<strong>「CSVをメモ帳で開いてコピペする」</strong>標準手順で安定して動作します。本マニュアルもこの手順を前提に記載しています。
+                </div>
+            </div>
+
+            <!-- 目次 -->
+            <div class="manual-section" style="background:#f1f2f6; padding:16px; border-radius:6px;">
+                <h3 style="border:none; margin-bottom:10px;">📋 目次</h3>
+                <ol style="margin-left:20px; line-height:2;">
+                    <li><a href="#chap1" style="color:var(--accent-color);">第1章：本システムの概要と特徴</a></li>
+                    <li><a href="#chap2" style="color:var(--accent-color);">第2章：Microsoft Formsの作成手順（事前準備）</a></li>
+                    <li><a href="#chap3" style="color:var(--accent-color);">第3章：割り当てマスター名簿の作成</a></li>
+                    <li><a href="#chap4" style="color:var(--accent-color);">第4章：ID/PINの新規生成（タブ①の操作）</a></li>
+                    <li><a href="#chap5" style="color:var(--accent-color);">第5章：Formsデータの結合処理（タブ②の操作）</a></li>
+                    <li><a href="#chap6" style="color:var(--accent-color);">第6章：処理結果の確認と警告への対応</a></li>
+                    <li><a href="#chap7" style="color:var(--accent-color);">第7章：Web発券システムへの登録（system_import.csv）</a></li>
+                    <li><a href="#chap8" style="color:var(--accent-color);">第8章：Wordの差し込み印刷による通知書作成</a></li>
+                    <li><a href="#chap9" style="color:var(--accent-color);">第9章：トラブルシューティング</a></li>
+                </ol>
+            </div>
+
+            <!-- 第1章 -->
+            <div class="manual-section" id="chap1">
+                <h3>第1章：本システムの概要と特徴</h3>
+                <p>本システムは、開成祭の入場管理において、生徒が入力したMicrosoft Forms回答情報とチケットの固有ID/PINをローカル環境で安全に紐付けるための教員用ツールです。<strong>HTMLファイル1つで完結し、インターネット接続は不要</strong>です。</p>
+
+                <p><strong>■ 個人情報保護について</strong><br>
+                本システムはブラウザ内部でのみ動作する「完全ローカル処理型」です。貼り付けた名簿データやForms回答データが外部サーバーに送信されることは一切ありません。オフライン環境でも全機能が動作します。</p>
+
                 <table class="manual-table">
                     <thead>
-                        <tr>
-                            <th>本システムで実行できること</th>
-                            <th>本システムでは実行できないこと</th>
-                        </tr>
+                        <tr><th>本システムで実行できること</th><th>本システムではできないこと</th></tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td>
-                                ・同じ生徒による複数回答（重複回答）の自動名寄せ（タイムスタンプを基に判断）<br>
-                                ・配付枠を超える招待客・保護者の自動足切り（カット）<br>
-                                ・パスワード（PIN）の入力補助用フリガナ自動生成<br>
-                                ・ファイル読込時の文字コード（UTF-8 / Shift-JIS）自動識別<br>
-                                ・年組番号の表記揺れ自動標準化クレンジング
+                                ✅ 同一生徒の重複回答の自動名寄せ（最新回答を採用）<br>
+                                ✅ 配付枠を超える招待客・保護者の自動カット<br>
+                                ✅ PINのフリガナ自動生成（入力補助用）<br>
+                                ✅ 文字コード（UTF-8 / Shift-JIS）自動識別<br>
+                                ✅ 年組番号の表記揺れ自動標準化
                             </td>
                             <td>
-                                ・チケットのプリンターへの直接印刷（Wordを経由します）<br>
-                                ・PDF出力やチケットデザインの変更
+                                ❌ プリンターへの直接印刷（Wordを経由します）<br>
+                                ❌ PDF出力やチケットデザインの変更<br>
+                                ❌ Microsoft Formsへの直接接続・自動取得
                             </td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
 
-            <div class="manual-section">
-                <h3>第2章：事前準備（回答フォームの作成と名簿の用意）</h3>
-                <p>結合処理を行う前に、事前に以下の「Microsoft Forms回答」と「配付制限データ」をご用意ください。</p>
-                
-                <p><strong>2-1. Microsoft Formsの設問設計</strong><br>
-                回答を得る際、以下の設問を必須として設計してください。</p>
-                <ul>
-                    <li><strong>年組番号</strong>: 英数字による入力を推奨します。（例: <code>1102</code>、<code>4319</code>）※表記揺れは本システムで自動標準化されます。</li>
-                    <li><strong>生徒氏名</strong>: 漢字によるフルネーム入力。</li>
-                    <li><strong>保護者公開日フォーム</strong>: 「保護者の入場予定人数」を回答させる設問を設けてください。（※保護者チケット用の個別氏名入力は不要です）</li>
-                    <li><strong>一般公開日（招待者）フォーム</strong>: 「氏名」と「続柄」の設問を入力最大想定人数分用意してください。</li>
-                </ul>
-
-                <p><strong>2-2. 準備する4つのファイルと「推奨コピペ」による安定運用手順</strong><br>
-                学校内PCでの書式ばらつきを防ぎ、最も安全にデータを読み込ませるための標準手順です。</p>
-                <ol>
-                    <li>ExcelファイルやForms回答データを、名前を付けて保存から「<strong>CSV (カンマ区切り)</strong>」形式で保存する。</li>
-                    <li>保存したCSVファイルを、Windowsアクセサリ等にある標準の「<strong>メモ帳</strong>」（Notepad）で開く。</li>
-                    <li>メモ帳が開いたら、キーボードの <strong>Ctrl + A</strong>（すべて選択）を押して、<strong>Ctrl + C</strong>（コピー）をする。</li>
-                    <li>本システムの結合処理タブ（②）を開き、対応する入力エリアの中に <strong>Ctrl + V</strong>（貼り付け）を行う。</li>
-                </ol>
-            </div>
-
-            <div class="manual-section">
-                <h3>第3章：システム全体の処理フロー</h3>
-                <ol>
-                    <li><strong>STEP 1</strong>: 「① ID/PINの新規生成」タブで空のチケットリストを発行・ダウンロード。</li>
-                    <li><strong>STEP 2</strong>: 「② Formsデータの結合」タブへ進み、事前準備した4つのファイルをメモ帳経由でコピーし、各ボックスに貼り付ける。</li>
-                    <li><strong>STEP 3</strong>: システムが推測したForms列のマッピング紐付けが正しいか確認する。</li>
-                    <li><strong>STEP 4</strong>: 処理実行を行い、配付枠上限を超えた生徒（自動カット対象者）やマスター未登録の状況を確認する。</li>
-                    <li><strong>STEP 5</strong>: 結合完了した各種ファイルを保存し、Web発券システムへのマスタ登録およびWordを用いた通知書印刷（差し込み印刷）を実行する。</li>
-                </ol>
-            </div>
-
-            <div class="manual-section">
-                <h3>第4章：システムの操作・UIの見方</h3>
-                
-                <p><strong>■ テキスト貼り付け完了時の表示</strong><br>
-                メモ帳からのテキスト貼り付け、またはファイル選択の読込が正常に行われると、フォーム領域がソフトグリーンにハイライトされ、読込完了状態を表すバッジが表示されます。また、入力ミス防止のため貼り付けられたデータの先頭3行が自動的にプレビューされます。</p>
-                <div class="form-group loaded-input-wrapper" style="margin-bottom: 20px; border:1px solid var(--success-color); padding:10px; border-radius:6px;">
-                    <label>
-                        サンプルコピペ入力完了モデル
-                        <span class="file-status loaded">✅ 読込完了 (842行)</span>
-                    </label>
-                    <textarea disabled style="height:40px;">年組番号,生徒氏名,入場予定人数&#10;1102,札幌太郎,2</textarea>
-                    <div class="preview-box">
-                        <details open>
-                            <summary>取り込みデータプレビュー（先頭3行）</summary>
-                            <table>
-                                <tr><td>年組番号</td><td>生徒氏名</td><td>入場予定人数</td></tr>
-                                <tr><td>1102</td><td>札幌太郎</td><td>2</td></tr>
-                            </table>
-                        </details>
+                <p><strong>■ 全体の作業フロー（概観）</strong></p>
+                <div style="background:#eaf4fb; border:1px solid #aed6f1; border-radius:6px; padding:14px; margin-top:8px;">
+                    <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; font-size:0.88rem; line-height:1.8;">
+                        <span style="background:#2c3e50; color:white; padding:4px 10px; border-radius:20px; white-space:nowrap;">【事前】Forms作成</span>
+                        <span>→</span>
+                        <span style="background:#2c3e50; color:white; padding:4px 10px; border-radius:20px; white-space:nowrap;">【事前】マスター名簿作成</span>
+                        <span>→</span>
+                        <span style="background:#3498db; color:white; padding:4px 10px; border-radius:20px; white-space:nowrap;">タブ① ID/PIN生成</span>
+                        <span>→</span>
+                        <span style="background:#27ae60; color:white; padding:4px 10px; border-radius:20px; white-space:nowrap;">生徒が回答</span>
+                        <span>→</span>
+                        <span style="background:#3498db; color:white; padding:4px 10px; border-radius:20px; white-space:nowrap;">タブ② 結合処理</span>
+                        <span>→</span>
+                        <span style="background:#8e44ad; color:white; padding:4px 10px; border-radius:20px; white-space:nowrap;">Web発券登録</span>
+                        <span>→</span>
+                        <span style="background:#e67e22; color:white; padding:4px 10px; border-radius:20px; white-space:nowrap;">差し込み印刷</span>
                     </div>
                 </div>
+            </div>
 
-                <p><strong>■ 列 of 紐付け（マッピング）の確認ポイント</strong><br>
-                Formsデータの列が自動的に判別されます。確認時には以下の点をご点検ください。</p>
-                <ul>
-                    <li>タイムスタンプには「完了時刻」が対応しているか確認してください。（重複回答時に、最も新しい送信内容のみを採用するために必要です）</li>
-                    <li>「生徒氏名」や「入場予定人数」がForms上の正しい設問名と紐付いているか確認してください。</li>
-                </ul>
+            <!-- 第2章 -->
+            <div class="manual-section" id="chap2">
+                <h3>第2章：Microsoft Formsの作成手順（事前準備）</h3>
+                <p>本システムへのデータ取り込みを前提に、以下の要領でMicrosoft Formsを作成してください。フォームは<strong>「保護者公開日用」と「一般公開日（招待者）用」の2種類</strong>を別々に作成します。</p>
 
-                <p><strong>■ 制限超過やマスター未登録時のアコーディオン表示</strong><br>
-                生徒の申請数が土曜券割当上限を越えた際や、割り当てマスターに存在しない年組番号の生徒が申請した際、システムは超過した招待客を自動的にカットします。調整されたデータは以下の枠組として展開・確認が可能です。</p>
-                <div class="accordion-container">
+                <p><strong>■ 2-1. 共通で必ず設ける設問（両フォームに共通）</strong></p>
+                <table class="manual-table">
+                    <thead>
+                        <tr><th>設問名（例）</th><th>形式</th><th>注意事項</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>年組番号</strong></td>
+                            <td>テキスト（1行）</td>
+                            <td>例：<code>1102</code>、<code>4319</code>のように英数字4桁推奨。「1年1組2番」などの表記揺れはシステムが自動標準化します。</td>
+                        </tr>
+                        <tr>
+                            <td><strong>生徒氏名</strong></td>
+                            <td>テキスト（1行）</td>
+                            <td>漢字フルネームで入力させてください。</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>■ 2-2. 保護者公開日フォームに追加する設問</strong></p>
+                <table class="manual-table">
+                    <thead>
+                        <tr><th>設問名（例）</th><th>形式</th><th>注意事項</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>入場予定人数</strong></td>
+                            <td>数値 または テキスト（1行）</td>
+                            <td>「保護者として来場する人数」を数値で回答させてください。個人名の入力は不要です。1家庭あたりの上限人数は、後でシステム側で設定できます。</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p><strong>■ 2-3. 一般公開日（招待者）フォームに追加する設問</strong><br>
+                招待できる最大人数分（例：3人まで招待可能なら3セット）の設問を繰り返し設けてください。</p>
+                <table class="manual-table">
+                    <thead>
+                        <tr><th>設問名（例）</th><th>形式</th><th>注意事項</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>招待者1　氏名</strong></td>
+                            <td>テキスト（1行）</td>
+                            <td rowspan="2">1人目の招待者の氏名と続柄をセットで設定します。2人目以降も同様に「招待者2 氏名」「招待者2 続柄」と繰り返します。</td>
+                        </tr>
+                        <tr>
+                            <td><strong>招待者1　続柄</strong></td>
+                            <td>テキスト（1行）または 選択肢</td>
+                        </tr>
+                        <tr>
+                            <td><strong>招待者2　氏名 / 続柄</strong></td>
+                            <td>テキスト（1行）</td>
+                            <td>2人目以降も同様に繰り返して作成してください。</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="background:#fef9e7; border-left:4px solid #f39c12; padding:12px; border-radius:0 6px 6px 0; margin-top:12px;">
+                    <strong>⚠️ Forms作成後の確認事項</strong>
+                    <ul style="margin-left:18px; margin-top:6px; font-size:0.88rem;">
+                        <li>フォームの「回答」タブ → 「Excelで開く」でExcelに回答データが正しくダウンロードできることを確認してください。</li>
+                        <li>Excelのダウンロードファイルには自動的に<strong>「完了時刻」列</strong>が含まれます。これは重複回答の名寄せに使用するため削除しないでください。</li>
+                        <li>設問名に記号（「,」など）が含まれると列の判定がずれる場合があります。シンプルな名前を推奨します。</li>
+                    </ul>
+                </div>
+
+                <p style="margin-top:14px;"><strong>■ 2-4. Forms回答データのCSV書き出し方法</strong></p>
+                <ol>
+                    <li>Formsの「回答」タブを開き、「<strong>Excelで開く</strong>」ボタンをクリックし、Excelファイルをダウンロードします。</li>
+                    <li>ダウンロードしたExcelファイルを開きます。</li>
+                    <li>Excelのメニューから「<strong>ファイル</strong>」→「<strong>名前を付けて保存</strong>」を選択します。</li>
+                    <li>ファイル形式を「<strong>CSV UTF-8（コンマ区切り）(*.csv)</strong>」に変更して保存します。</li>
+                    <li>保存したCSVファイルを右クリック →「<strong>プログラムから開く</strong>」→「<strong>メモ帳</strong>」で開きます。</li>
+                    <li>メモ帳で <strong>Ctrl+A</strong>（全選択）→ <strong>Ctrl+C</strong>（コピー）を実行し、本システムの対応入力欄に <strong>Ctrl+V</strong>（貼り付け）します。</li>
+                </ol>
+            </div>
+
+            <!-- 第3章 -->
+            <div class="manual-section" id="chap3">
+                <h3>第3章：割り当てマスター名簿の作成</h3>
+                <p>「割り当てマスター」とは、<strong>各生徒に配付する一般公開日（土曜券）の枚数上限を定めたリスト</strong>です。本システムはこのマスターを参照して、申請人数が上限を超えた分を自動的にカットします。</p>
+
+                <p><strong>■ 作成形式</strong><br>
+                Excelで以下の形式で作成し、CSVで保存してください（メモ帳コピペ用）。</p>
+                <table class="manual-table">
+                    <thead>
+                        <tr><th>A列：年組番号</th><th>B列：許可した土曜券の枚数</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>1102</td><td>3</td></tr>
+                        <tr><td>1103</td><td>2</td></tr>
+                        <tr><td>4319</td><td>3</td></tr>
+                    </tbody>
+                </table>
+
+                <div style="background:#fef9e7; border-left:4px solid #f39c12; padding:12px; border-radius:0 6px 6px 0; margin-top:8px; font-size:0.88rem;">
+                    <strong>⚠️ 重要：</strong> 全生徒の年組番号がこのマスターに含まれていることを確認してください。マスターに存在しない年組番号を持つ生徒がFormsに回答した場合、その生徒のチケットは<strong>すべて除外（配付枚数0枚として処理）</strong>されます。処理後に「🚨マスター未登録」の赤い警告として表示されます。
+                </div>
+            </div>
+
+            <!-- 第4章 -->
+            <div class="manual-section" id="chap4">
+                <h3>第4章：ID/PINの新規生成（タブ①の操作）</h3>
+                <p>「<strong>① ID/PINの新規生成</strong>」タブでは、チケットに使用する空のID・PINのリストを事前に大量生成してCSVに保存します。この作業は<strong>毎年1回（または必要な時のみ）</strong>行えばOKです。</p>
+
+                <p><strong>■ 操作手順</strong></p>
+                <ol>
+                    <li>「<strong>① ID/PINの新規生成</strong>」タブをクリックします。</li>
+                    <li><strong>ID生成ルール</strong>と<strong>PIN生成ルール</strong>を設定します。
+                        <ul>
+                            <li><strong>桁数</strong>：IDは4桁以上を推奨（デフォルト：4桁）</li>
+                            <li><strong>使用文字種</strong>：数字のみ、英数字混合など用途に応じて選択</li>
+                            <li><strong>除外文字</strong>：<code>eE</code>はデフォルトで除外済（Excelの指数表記バグ防止）。誤読を防ぐため<code>0Oo1Il</code>などの追加除外も推奨</li>
+                        </ul>
+                    </li>
+                    <li><strong>生成件数</strong>に必要枚数（全校生徒×招待者数＋余裕分）を入力します。</li>
+                    <li>「<strong>データを生成する</strong>」ボタンをクリックします。</li>
+                    <li>プレビューが表示されたら「<strong>チケット用CSVダウンロード</strong>」をクリックしてCSVを保存します。</li>
+                </ol>
+
+                <div style="background:#e8f8f5; border-left:4px solid #27ae60; padding:12px; border-radius:0 6px 6px 0; margin-top:10px; font-size:0.88rem;">
+                    <strong>✅ ポイント：</strong> ダウンロードしたCSVファイルは次の「タブ② 結合処理」で使用します。ファイル名を変えずに保管しておいてください。また、生成履歴は「履歴バックアップ保存（JSON）」で保存しておくと、万一の際に同じリストを再出力できます。
+                </div>
+
+                <p style="margin-top:12px;"><strong>■ 上限警告について</strong><br>
+                設定した桁数・文字種の組み合わせで理論上生成可能な総数より多い件数を入力すると、オレンジ色の上限警告が表示されます。その場合は桁数を増やすか、件数を減らしてください。</p>
+            </div>
+
+            <!-- 第5章 -->
+            <div class="manual-section" id="chap5">
+                <h3>第5章：Formsデータの結合処理（タブ②の操作）</h3>
+                <p>生徒のForms回答が締め切られたら、このタブで各データを読み込んで結合処理を実行します。</p>
+
+                <p><strong>■ 事前に用意するもの（4つのデータ）</strong></p>
+                <table class="manual-table">
+                    <thead>
+                        <tr><th>番号</th><th>データ名</th><th>元ファイル</th><th>最低限必要な列</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>①</td>
+                            <td>割り当てマスター名簿</td>
+                            <td>第3章で作成したCSV</td>
+                            <td>年組番号、許可枚数</td>
+                        </tr>
+                        <tr>
+                            <td>②</td>
+                            <td>保護者公開フォーム回答</td>
+                            <td>FormsからダウンロードしたExcel → CSV化</td>
+                            <td>完了時刻、年組番号、生徒氏名、入場予定人数</td>
+                        </tr>
+                        <tr>
+                            <td>③</td>
+                            <td>一般公開フォーム回答</td>
+                            <td>FormsからダウンロードしたExcel → CSV化</td>
+                            <td>完了時刻、年組番号、生徒氏名、招待者1氏名、招待者1続柄…</td>
+                        </tr>
+                        <tr>
+                            <td>④</td>
+                            <td>ID/PINリスト</td>
+                            <td>タブ①でダウンロードしたCSV</td>
+                            <td>ID、PIN</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p style="margin-top:14px;"><strong>■ 操作手順（ステップごと）</strong></p>
+
+                <div style="counter-reset: step-counter; margin-top:8px;">
+
+                    <div style="border:1px solid #dcdde1; border-radius:6px; padding:14px; margin-bottom:12px;">
+                        <div style="font-weight:bold; color:#2c3e50; margin-bottom:8px; font-size:1rem;">STEP 1：制限人数の設定</div>
+                        <p style="font-size:0.9rem;">「1. 公開日ごとの割当・制限設定」カードで以下を入力します。</p>
+                        <ul style="margin-left:18px; font-size:0.88rem;">
+                            <li><strong>保護者公開日の1家庭あたりの最大制限人数</strong>：例えば「2」と入力すると、2名を超える保護者申請は自動カットされます。「制限なし」にチェックすると申請人数をそのまま発券します。</li>
+                            <li><strong>一般公開日の1生徒あたりの最大招待可能数</strong>：例えば「3」と入力すると招待者3名までの申請を受け付けます。</li>
+                        </ul>
+                    </div>
+
+                    <div style="border:1px solid #dcdde1; border-radius:6px; padding:14px; margin-bottom:12px;">
+                        <div style="font-weight:bold; color:#2c3e50; margin-bottom:8px; font-size:1rem;">STEP 2：4つのデータの読み込み（コピペ）</div>
+                        <p style="font-size:0.9rem;">各データをメモ帳経由でコピーし、以下の手順でそれぞれの入力欄に貼り付けます。</p>
+                        <ol style="margin-left:18px; font-size:0.88rem;">
+                            <li>CSVファイルを右クリック →「プログラムから開く」→「<strong>メモ帳</strong>」で開く</li>
+                            <li>メモ帳上で <kbd style="background:#eee; padding:1px 5px; border-radius:3px; border:1px solid #ccc;">Ctrl</kbd> + <kbd style="background:#eee; padding:1px 5px; border-radius:3px; border:1px solid #ccc;">A</kbd>（全選択）</li>
+                            <li><kbd style="background:#eee; padding:1px 5px; border-radius:3px; border:1px solid #ccc;">Ctrl</kbd> + <kbd style="background:#eee; padding:1px 5px; border-radius:3px; border:1px solid #ccc;">C</kbd>（コピー）</li>
+                            <li>本システムの対応する入力欄をクリックして <kbd style="background:#eee; padding:1px 5px; border-radius:3px; border:1px solid #ccc;">Ctrl</kbd> + <kbd style="background:#eee; padding:1px 5px; border-radius:3px; border:1px solid #ccc;">V</kbd>（貼り付け）</li>
+                        </ol>
+                        <p style="font-size:0.88rem; margin-top:8px;">正常に読み込まれると、入力欄が<span style="background:#55efc4; color:#0b8457; padding:1px 6px; border-radius:10px; font-size:0.8rem; font-weight:bold;">✅ 読込完了</span>のバッジに変わり、先頭3行のプレビューが表示されます。</p>
+                        <div class="form-group loaded-input-wrapper" style="margin-top:10px; border:1px solid var(--success-color); padding:10px; border-radius:6px;">
+                            <label>サンプル：読込完了状態の表示例<span class="file-status loaded">✅ 読込完了 (842行)</span></label>
+                            <textarea disabled style="height:36px;">年組番号,生徒氏名,入場予定人数&#10;1102,札幌太郎,2</textarea>
+                            <div class="preview-box"><details open><summary>取り込みデータプレビュー（先頭3行）</summary><table><tr><td>年組番号</td><td>生徒氏名</td><td>入場予定人数</td></tr><tr><td>1102</td><td>札幌太郎</td><td>2</td></tr></table></details></div>
+                        </div>
+                    </div>
+
+                    <div style="border:1px solid #dcdde1; border-radius:6px; padding:14px; margin-bottom:12px;">
+                        <div style="font-weight:bold; color:#2c3e50; margin-bottom:8px; font-size:1rem;">STEP 3：列の紐付け（マッピング）の確認</div>
+                        <p style="font-size:0.9rem;">②③のデータが読み込まれると「3. Forms列の紐付け（マッピング）確認」カードが表示されます。システムがFormsの列名を自動判定しますが、<strong>必ず以下を目視で確認</strong>してください。</p>
+                        <ul style="margin-left:18px; font-size:0.88rem;">
+                            <li>「タイムスタンプ」には Formsの<strong>「完了時刻」列</strong>が選ばれているか（重複回答の名寄せに必須）</li>
+                            <li>「生徒氏名」「年組番号」「入場予定人数」が正しい列名と対応しているか</li>
+                            <li>招待者の「氏名1」「続柄1」…が正しい設問列と対応しているか</li>
+                        </ul>
+                        <p style="font-size:0.88rem; margin-top:6px;">誤りがある場合は、各項目のドロップダウンを正しい列名に変更してください。</p>
+                    </div>
+
+                    <div style="border:1px solid #dcdde1; border-radius:6px; padding:14px; margin-bottom:12px;">
+                        <div style="font-weight:bold; color:#2c3e50; margin-bottom:8px; font-size:1rem;">STEP 4：処理の実行</div>
+                        <p style="font-size:0.9rem;">マッピングの確認が終わったら「<strong>データ処理を実行する</strong>」ボタンをクリックします。処理ログが表示され、完了すると緑色の「✅ 結合処理が完了しました！」と出力ファイルのダウンロードボタンが表示されます。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 第6章 -->
+            <div class="manual-section" id="chap6">
+                <h3>第6章：処理結果の確認と警告への対応</h3>
+                <p>処理完了後、調整が行われた生徒がいる場合は「⚠️ 処理中に検出された調整事項」エリアに一覧が表示されます。</p>
+
+                <p><strong>■ 警告の種類と対応</strong></p>
+                <table class="manual-table">
+                    <thead>
+                        <tr><th>表示アイコン</th><th>警告の意味</th><th>必要な対応</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="color:#e53e3e; font-weight:bold;">🚨 重要</td>
+                            <td>マスター名簿に年組番号が存在しない（配付枚数0として処理）</td>
+                            <td>マスター名簿の記載ミスを確認し、再処理。または個別配付対応。</td>
+                        </tr>
+                        <tr>
+                            <td style="color:#d35400; font-weight:bold;">⚠️ 保護者制限超過</td>
+                            <td>申請人数が保護者上限を超えたため、超過分をカット</td>
+                            <td>対象生徒へ「一部カットした旨」の個別通知を行う。</td>
+                        </tr>
+                        <tr>
+                            <td style="color:#d35400; font-weight:bold;">⚠️ 制限超過</td>
+                            <td>招待者申請数が割当上限を超えたため、先頭の人から順に採用しカット</td>
+                            <td>対象生徒へ「一部カットした旨」の個別通知を行う。</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p style="margin-top:10px;">各警告はクリックで詳細を展開できます。調整対象者の一覧は「<strong>調整対象者一覧をCSVダウンロード</strong>」ボタンから保存できます（<code>warnings_list_adjust.csv</code>）。</p>
+
+                <div class="accordion-container" style="margin-top:10px;">
                     <div class="accordion-header">1102 札幌 太郎 - 制限超過による調整 (1名カット)</div>
                     <div class="accordion-body" style="display: block;">
                         <p><strong>【現在の申請状況】:</strong> 生徒は一般公開の招待客として計 <strong>3名</strong>（来場者A、来場者B、来場者C）をFormsから申請しています。</p>
@@ -687,20 +910,154 @@
                         <p><strong>【対応策・処理方針】:</strong> 制限枠内に収まる先頭の <strong>2名</strong>（来場者A、来場者B）のみチケットを割り当て、上限を超過した <strong>来場者C</strong> は出力ファイルから自動的にカットされます。</p>
                     </div>
                 </div>
+
+                <p style="margin-top:14px;"><strong>■ 出力される3つのファイル</strong></p>
+                <table class="manual-table">
+                    <thead>
+                        <tr><th>ファイル名</th><th>用途</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>system_import.csv</code></td>
+                            <td>Web発券システム（来場者がスマホでログインするシステム）の管理画面にインポートする</td>
+                        </tr>
+                        <tr>
+                            <td><code>print_merge.csv</code></td>
+                            <td>Wordの差し込み印刷で生徒配付用通知書を一括作成する</td>
+                        </tr>
+                        <tr>
+                            <td><code>warnings_list_adjust.csv</code></td>
+                            <td>カット対象者へ個別通知書を作成する（警告が発生した場合のみ）</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
-            <div class="manual-section">
-                <h3>第5章：データ出力後の事後作業について</h3>
-                <p>本システムでのデータ処理が完了した後は、以下の通り事後処理を進めてください。</p>
+            <!-- 第7章 -->
+            <div class="manual-section" id="chap7">
+                <h3>第7章：Web発券システムへの登録（system_import.csv）</h3>
+                <p>ダウンロードした <code>system_import.csv</code> を、来場者管理用Web発券システムの管理画面にインポートします。</p>
                 <ul>
-                    <li><strong>Web発券システムへの登録</strong>: <br>
-                    出力された <code>system_import.csv</code> は、Web発券サーバー（来場者がスマホ等でログインする画面）の管理画面にそのままインポートしてご使用ください。</li>
-                    <li><strong>配付用通知プリントの作成（Wordの差し込み印刷機能）</strong>: <br>
-                    生徒配付用のプリント作成には <code>print_merge.csv</code> を使用します。Wordで作成した配付ひな形を開き、「差し込み文書」タブから「宛先の選択 → 既存のリストを使用」でCSVを指定することで、全生徒分のID・PINが差し込まれたプリントを一括出力できます。</li>
-                    <li><strong>調整対象者への個別案内・対応</strong>: <br>
-                    制限により招待客や保護者が除外された生徒は、ダウンロードした <code>warnings_list_adjust.csv</code> を用いて個別に通知書を一括作成し、「制限枠を超過したため、一部のお客様の登録をカットしました」等の個別事後連絡を円滑に行うことができます。</li>
+                    <li>Web発券システムの管理画面にログインし、「データインポート」または「CSV一括登録」などのメニューを開きます。</li>
+                    <li><code>system_import.csv</code> を選択して、アップロード・インポートを実行します。</li>
+                    <li>ファイルの列構成は「<strong>ID, PIN, 券種, 年組番号, 生徒氏名, 来場者名, 続柄, 入場人数</strong>」です。インポート時に列の対応が求められる場合は、この順番を参考にしてください。</li>
                 </ul>
+                <div style="background:#fef9e7; border-left:4px solid #f39c12; padding:10px; border-radius:0 6px 6px 0; font-size:0.88rem; margin-top:8px;">
+                    ⚠️ Web発券システムの操作方法はシステムによって異なります。操作に不明な点があればシステム提供者にお問い合わせください。
+                </div>
             </div>
+
+            <!-- 第8章 -->
+            <div class="manual-section" id="chap8">
+                <h3>第8章：Wordの差し込み印刷による通知書作成</h3>
+                <p>生徒に配付するID/PIN通知書は、<code>print_merge.csv</code> とMicrosoft Wordの「差し込み印刷」機能を組み合わせて一括作成します。</p>
+
+                <p><strong>■ 8-1. print_merge.csv の列構成</strong></p>
+                <p>このCSVには、1行＝1生徒のデータが入っており、以下の列が含まれています。</p>
+                <table class="manual-table">
+                    <thead>
+                        <tr><th>列名（例）</th><th>内容</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>年組番号</td><td>生徒の年組番号</td></tr>
+                        <tr><td>生徒氏名</td><td>生徒の氏名（漢字）</td></tr>
+                        <tr><td>割当枠</td><td>この生徒の招待可能枚数</td></tr>
+                        <tr><td>保護者_人数 / 保護者_ID / 保護者_PIN / 保護者_フリガナ</td><td>保護者チケット情報</td></tr>
+                        <tr><td>招1_氏名 / 招1_続柄 / 招1_ID / 招1_PIN / 招1_フリガナ</td><td>招待者1人目の情報（2人目以降も同様）</td></tr>
+                    </tbody>
+                </table>
+
+                <p style="margin-top:14px;"><strong>■ 8-2. Wordで差し込み印刷を設定する手順</strong></p>
+                <ol>
+                    <li>配付用通知書のWordファイル（ひな形）を開きます。ない場合は新規作成します。</li>
+                    <li>Wordのメニューで「<strong>差し込み文書</strong>」タブをクリックします。</li>
+                    <li>「<strong>宛先の選択</strong>」→「<strong>既存のリストを使用</strong>」をクリックします。</li>
+                    <li>ファイル選択ダイアログで <code>print_merge.csv</code> を選択し、「<strong>開く</strong>」をクリックします。</li>
+                    <li>「テーブルの選択」が表示されたら、先頭行が見出し行である場合は「<strong>先頭行をフィールド名として使用する</strong>」にチェックを入れて「OK」をクリックします。</li>
+                    <li>通知書のひな形の中に、差し込みフィールドを挿入します：
+                        <ul style="margin-left:18px; margin-top:6px; font-size:0.88rem;">
+                            <li>差し込みを入れたい場所にカーソルを置く</li>
+                            <li>「<strong>差し込みフィールドの挿入</strong>」ボタンをクリック</li>
+                            <li>対応する列名（例：<code>生徒氏名</code>、<code>保護者_ID</code> など）を選択</li>
+                            <li>文書内に <code>«生徒氏名»</code> のように差し込みフィールドが挿入されます</li>
+                        </ul>
+                    </li>
+                    <li>「<strong>結果のプレビュー</strong>」ボタンをクリックして、実際のデータが正しく表示されるか確認します。</li>
+                    <li>問題なければ「<strong>完了と差し込み</strong>」→「<strong>個々のドキュメントの編集</strong>」をクリックし、全生徒分を一つのWordファイルとして出力します。</li>
+                    <li>出力されたWordファイルを印刷すれば、全生徒分の通知書が完成します。</li>
+                </ol>
+
+                <div style="background:#e8f8f5; border-left:4px solid #27ae60; padding:12px; border-radius:0 6px 6px 0; margin-top:12px; font-size:0.88rem;">
+                    <strong>✅ 差し込みフィールドの記述例（ひな形内での表記）</strong><br><br>
+                    <div style="background:white; border:1px solid #ddd; padding:10px; border-radius:4px; font-family:serif; line-height:2;">
+                        開成祭 チケット配付のお知らせ<br>
+                        <br>
+                        <strong>«年組番号»　«生徒氏名»</strong> 様へ<br>
+                        <br>
+                        【保護者チケット】　入場人数：«保護者_人数»名<br>
+                        　ID：«保護者_ID»　　PIN：«保護者_PIN»（«保護者_フリガナ»）<br>
+                        <br>
+                        【招待者1：«招1_氏名»（«招1_続柄»）】<br>
+                        　ID：«招1_ID»　　PIN：«招1_PIN»（«招1_フリガナ»）
+                    </div>
+                </div>
+
+                <p style="margin-top:14px;"><strong>■ 8-3. 調整対象者の個別通知（warnings_list_adjust.csv を使う場合）</strong></p>
+                <p>申請人数がカットされた生徒には、別途個別の通知書を作成します。<code>warnings_list_adjust.csv</code> には「除外理由」「カットされた来場者名」が記載されています。同様に差し込み印刷を使って一括で通知書を作成できます。</p>
+            </div>
+
+            <!-- 第9章 -->
+            <div class="manual-section" id="chap9">
+                <h3>第9章：トラブルシューティング</h3>
+                <table class="manual-table">
+                    <thead>
+                        <tr><th>症状・エラー</th><th>原因</th><th>対処法</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>貼り付けても「読込完了」にならない</td>
+                            <td>空白や改行のみを貼り付けた、または文字コードの問題</td>
+                            <td>メモ帳で開いたCSVのデータが正しくコピーされているか確認。ExcelからCSV保存の際は「CSV UTF-8（コンマ区切り）」を選ぶ。</td>
+                        </tr>
+                        <tr>
+                            <td>列マッピングに正しい項目名が出てこない</td>
+                            <td>Formsの設問名がシステムの自動判定と一致しない</td>
+                            <td>ドロップダウンを手動で正しい列名に変更してください。</td>
+                        </tr>
+                        <tr>
+                            <td>「🚨マスター未登録」が大量に出る</td>
+                            <td>割り当てマスターの年組番号の形式がFormsの年組番号と異なる</td>
+                            <td>マスターのA列の年組番号を確認。Formsの年組番号（例：「1-1-02」）とマスター（例：「1102」）の表記が異なる場合、どちらかに統一するかマスターを修正して再処理。</td>
+                        </tr>
+                        <tr>
+                            <td>差し込み印刷でフィールドが表示されない</td>
+                            <td>CSVの1行目（ヘッダー行）がフィールド名として認識されていない</td>
+                            <td>Wordの「テーブルの選択」ダイアログで「先頭行をフィールド名として使用する」にチェックが入っているか確認。</td>
+                        </tr>
+                        <tr>
+                            <td>差し込み印刷でIDが「1.23E+3」のように表示される</td>
+                            <td>ExcelがIDを数値として解釈し指数表記になっている</td>
+                            <td>CSVをメモ帳で開いてコピーした場合は発生しません。Excelで開いて確認する際はID列を「文字列」書式に変更してください。本システムはデフォルトで「eE」を除外済みのため、適切に設定されていれば通常は発生しません。</td>
+                        </tr>
+                        <tr>
+                            <td>処理ログに「[処理中止]」と表示される</td>
+                            <td>必要なデータが不足しているか形式が正しくない</td>
+                            <td>ログに表示されるエラー内容を確認し、該当するデータを再確認してください。特に①②③④のすべてが「読込完了」状態になっているか確認。</td>
+                        </tr>
+                        <tr>
+                            <td>過去のデータをやり直したい（履歴リセット）</td>
+                            <td>誤って古いID/PINを使い回してしまうリスク防止のため確認が必要</td>
+                            <td>「① ID/PINの新規生成」タブ → 「履歴バックアップ保存」で現在の履歴をJSON保存してから「全履歴リセット」を実行します。リセット時は自動でバックアップJSONがダウンロードされます。</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="background:#fdecea; border-left:4px solid #e74c3c; padding:12px; border-radius:0 6px 6px 0; margin-top:14px; font-size:0.88rem;">
+                    <strong>📞 それでも解決しない場合</strong><br>
+                    処理ログのテキスト全文をコピーして、本システムの開発・管理担当者に問い合わせてください。エラー内容の詳細がログに記録されています。
+                </div>
+            </div>
+
         </div>
     </div>
 

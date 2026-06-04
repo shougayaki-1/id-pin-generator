@@ -1,0 +1,2160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>開成祭チケット発行システム</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --danger-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --background-color: #f5f6fa;
+            --card-bg: #ffffff;
+            --border-color: #dcdde1;
+            --text-color: #2f3640;
+            --guide-bg: #e8f4f8;
+            --btn-csv-bg: #8e44ad;
+            --btn-csv-hover-bg: #9b59b6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .tab-menu {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: 2px solid var(--primary-color);
+            background-color: white;
+            color: var(--primary-color);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        .card h2 {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+            font-size: 1.25rem;
+            color: var(--primary-color);
+        }
+
+        .guide-box {
+            background-color: var(--guide-bg);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 0 5px 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .guide-box h3 {
+            color: #2980b9;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .guide-box ol, .guide-box ul {
+            margin-left: 20px;
+        }
+
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+
+        .form-group input[type="number"],
+        .form-group input[type="text"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            background-color: white;
+        }
+
+        .form-group textarea {
+            font-family: monospace;
+            font-size: 0.8rem;
+            resize: vertical;
+        }
+
+        .file-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            background-color: #ffeaa7;
+            color: #d63031;
+        }
+        .file-status.loaded {
+            background-color: #55efc4;
+            color: #0b8457;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .checkbox-label input {
+            margin-right: 5px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
+
+        .btn-primary { background-color: var(--accent-color); }
+        .btn-secondary { background-color: var(--secondary-color); }
+        .btn-danger { background-color: var(--danger-color); }
+        .btn-success { background-color: var(--success-color); }
+        .btn-csv { background-color: var(--btn-csv-bg); }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+            font-size: 1.1rem;
+            padding: 12px;
+        }
+
+        .controls-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f2f6;
+        }
+
+        .help-text {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            margin-top: 2px;
+        }
+
+        #logArea {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            height: 150px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+
+        .accordion-container {
+            margin-bottom: 8px;
+            border: 1px solid #fed7d7;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            background-color: #fff5f5;
+            color: #c53030;
+            padding: 10px 15px;
+            font-weight: bold;
+            font-size: 0.88rem;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .accordion-header::after {
+            content: '▼ 詳細を表示する';
+            font-size: 0.75rem;
+            color: #e53e3e;
+        }
+
+        .accordion-header.active::after {
+            content: '▲ 詳細を閉じる';
+        }
+
+        .accordion-body {
+            display: none;
+            background-color: #ffffff;
+            padding: 15px;
+            border-top: 1px solid #fed7d7;
+            font-size: 0.85rem;
+            color: #2d3748;
+        }
+
+        .accordion-body p {
+            margin-bottom: 8px;
+        }
+
+        .accordion-body p strong {
+            color: #1a202c;
+        }
+
+        .trouble-card {
+            border: 1px solid #f5c6cb;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .trouble-card h3 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .trouble-card ul {
+            margin-left: 20px;
+            font-size: 0.85rem;
+        }
+
+        .trouble-card li {
+            margin-bottom: 5px;
+        }
+
+        .mapping-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .mapping-box {
+            flex: 1;
+            min-width: 320px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #eee;
+        }
+
+        .mapping-box h3 {
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            color: #d35400;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+
+        .mapping-item {
+            border-bottom: 1px dashed #ddd;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .mapping-item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mapping-item label {
+            font-size: 0.8rem;
+            width: 45%;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .mapping-item select {
+            width: 50%;
+            font-size: 0.8rem;
+            padding: 3px;
+        }
+
+        .status-bar {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+        }
+
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+        }
+        .alert-warning { background-color: var(--warning-color); }
+        .alert-danger { background-color: var(--danger-color); }
+        
+        .paste-textarea-container {
+            display: block;
+            margin-top: 8px;
+        }
+
+        .file-input-container {
+            display: none;
+            margin-top: 8px;
+        }
+
+        .form-group.loaded-input-wrapper {
+            background-color: #f0fff4;
+            border-color: var(--success-color) !important;
+        }
+
+        .manual-section {
+            margin-bottom: 24px;
+        }
+
+        .manual-section h3 {
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .manual-section p {
+            margin-bottom: 8px;
+            font-size: 0.92rem;
+        }
+
+        .manual-section ul,
+        .manual-section ol {
+            margin-left: 20px;
+            margin-bottom: 8px;
+            font-size: 0.92rem;
+        }
+
+        .manual-section li {
+            margin-bottom: 4px;
+        }
+
+        .manual-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0 16px;
+            font-size: 0.88rem;
+        }
+
+        .manual-table th,
+        .manual-table td {
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            vertical-align: top;
+        }
+
+        .manual-table th {
+            background-color: var(--primary-color);
+            color: white;
+            text-align: center;
+        }
+
+        .preview-box {
+            font-size: 0.75rem;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 8px;
+            margin-top: 8px;
+            border-radius: 4px;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .preview-box summary {
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--secondary-color);
+            outline: none;
+            user-select: none;
+        }
+
+        .preview-box table {
+            margin-top: 5px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .preview-box th, .preview-box td {
+            padding: 3px 5px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .next-step-box {
+            background-color: #fff9db;
+            border: 2px dashed #f59f00;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .next-step-box h3 {
+            color: #f08c00;
+            margin-bottom: 5px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .download-box {
+            background-color: #f4fce3;
+            border: 2px solid #74b816;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        .download-box h3 {
+            color: #5c940f;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .footer-credits {
+            text-align: center;
+            margin-top: 30px;
+            padding: 16px;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.8;
+        }
+
+        .footer-credits a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .footer-credits a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>開成祭チケット発行システム</h1>
+
+    <!-- タブメニュー -->
+    <div class="tab-menu">
+        <button id="defaultTabBtn" class="tab-btn active" onclick="switchTab('manualTab', this)">📖 利用マニュアル</button>
+        <button id="genTabBtn" class="tab-btn" onclick="switchTab('generatorTab', this)">① ID/PINの新規生成（毎年または必要時）</button>
+        <button id="procTabBtn" class="tab-btn" onclick="switchTab('processorTab', this)">② Formsデータの結合（本番処理）</button>
+    </div>
+
+    <!-- =================== タブ0: マニュアル =================== -->
+    <div id="manualTab" class="tab-content active">
+        <div class="card">
+            <h2>開成祭チケット発行システム 教員向け利用マニュアル</h2>
+            
+            <div class="manual-section">
+                <p>本システムは、学校祭（開成祭）の入場管理において、生徒が入力したMicrosoft Forms回答情報とチケットの固有ID/PINをローカル環境で安全に紐付けるための教員用ツールです。</p>
+                <p style="color: var(--danger-color); font-weight: bold;">💡【公務用PC対策・推奨コピペフロー搭載】: <br>
+                自治体や学校の強固な情報セキュリティ制限（ファイルの選択・アップロード制限）を確実に回避し、最も安定したデータ取り込みを可能にするため、<strong>「CSV出力 → メモ帳で開く → テキストをコピペする」</strong>手順を標準仕様としています。</p>
+            </div>
+
+            <div class="manual-section">
+                <h3>第1章：本システムの特徴と安全性について</h3>
+                <p><strong>■ 個人情報保護と機密保護について</strong><br>
+                本システムは、ブラウザ内部でのみ動作する「完全ローカル処理型」プログラムです。アップロードや貼り付けを行った名簿データやForms回答データがインターネット上のサーバーに送信されることは一切ありません。オフライン環境でもすべての動作を保証しておりますので、機密保護の観点からも安心してお使いいただけます。</p>
+                <p><strong>■ システムでできること・できないこと</strong></p>
+                <table class="manual-table">
+                    <thead>
+                        <tr>
+                            <th>本システムで実行できること</th>
+                            <th>本システムでは実行できないこと</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                ・同じ生徒による複数回答（重複回答）の自動名寄せ（タイムスタンプを基に判断）<br>
+                                ・配付枠を超える招待客・保護者の自動足切り（カット）<br>
+                                ・パスワード（PIN）の入力補助用フリガナ自動生成<br>
+                                ・ファイル読込時の文字コード（UTF-8 / Shift-JIS）自動識別<br>
+                                ・年組番号の表記揺れ自動標準化クレンジング
+                            </td>
+                            <td>
+                                ・チケットのプリンターへの直接印刷（Wordを経由します）<br>
+                                ・PDF出力やチケットデザインの変更
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="manual-section">
+                <h3>第2章：事前準備（回答フォームの作成と名簿の用意）</h3>
+                <p>結合処理を行う前に、事前に以下の「Microsoft Forms回答」と「配付制限データ」をご用意ください。</p>
+                
+                <p><strong>2-1. Microsoft Formsの設問設計</strong><br>
+                回答を得る際、以下の設問を必須として設計してください。</p>
+                <ul>
+                    <li><strong>年組番号</strong>: 英数字による入力を推奨します。（例: <code>1102</code>、<code>4319</code>）※表記揺れは本システムで自動標準化されます。</li>
+                    <li><strong>生徒氏名</strong>: 漢字によるフルネーム入力。</li>
+                    <li><strong>保護者公開日フォーム</strong>: 「保護者の入場予定人数」を回答させる設問を設けてください。（※保護者チケット用の個別氏名入力は不要です）</li>
+                    <li><strong>一般公開日（招待者）フォーム</strong>: 「氏名」と「続柄」の設問を入力最大想定人数分用意してください。</li>
+                </ul>
+
+                <p><strong>2-2. 準備する4つのファイルと「推奨コピペ」による安定運用手順</strong><br>
+                学校内PCでの書式ばらつきを防ぎ、最も安全にデータを読み込ませるための標準手順です。</p>
+                <ol>
+                    <li>ExcelファイルやForms回答データを、名前を付けて保存から「<strong>CSV (カンマ区切り)</strong>」形式で保存する。</li>
+                    <li>保存したCSVファイルを、Windowsアクセサリ等にある標準の「<strong>メモ帳</strong>」（Notepad）で開く。</li>
+                    <li>メモ帳が開いたら、キーボードの <strong>Ctrl + A</strong>（すべて選択）を押して、<strong>Ctrl + C</strong>（コピー）をする。</li>
+                    <li>本システムの結合処理タブ（②）を開き、対応する入力エリアの中に <strong>Ctrl + V</strong>（貼り付け）を行う。</li>
+                </ol>
+            </div>
+
+            <div class="manual-section">
+                <h3>第3章：システム全体の処理フロー</h3>
+                <ol>
+                    <li><strong>STEP 1</strong>: 「① ID/PINの新規生成」タブで空のチケットリストを発行・ダウンロード。</li>
+                    <li><strong>STEP 2</strong>: 「② Formsデータの結合」タブへ進み、事前準備した4つのファイルをメモ帳経由でコピーし、各ボックスに貼り付ける。</li>
+                    <li><strong>STEP 3</strong>: システムが推測したForms列のマッピング紐付けが正しいか確認する。</li>
+                    <li><strong>STEP 4</strong>: 処理実行を行い、配付枠上限を超えた生徒（自動カット対象者）やマスター未登録の状況を確認する。</li>
+                    <li><strong>STEP 5</strong>: 結合完了した各種ファイルを保存し、Web発券システムへのマスタ登録およびWordを用いた通知書印刷（差し込み印刷）を実行する。</li>
+                </ol>
+            </div>
+
+            <div class="manual-section">
+                <h3>第4章：システムの操作・UIの見方</h3>
+                
+                <p><strong>■ テキスト貼り付け完了時の表示</strong><br>
+                メモ帳からのテキスト貼り付け、またはファイル選択の読込が正常に行われると、フォーム領域がソフトグリーンにハイライトされ、読込完了状態を表すバッジが表示されます。また、入力ミス防止のため貼り付けられたデータの先頭3行が自動的にプレビューされます。</p>
+                <div class="form-group loaded-input-wrapper" style="margin-bottom: 20px; border:1px solid var(--success-color); padding:10px; border-radius:6px;">
+                    <label>
+                        サンプルコピペ入力完了モデル
+                        <span class="file-status loaded">✅ 読込完了 (842行)</span>
+                    </label>
+                    <textarea disabled style="height:40px;">年組番号,生徒氏名,入場予定人数&#10;1102,札幌太郎,2</textarea>
+                    <div class="preview-box">
+                        <details open>
+                            <summary>取り込みデータプレビュー（先頭3行）</summary>
+                            <table>
+                                <tr><td>年組番号</td><td>生徒氏名</td><td>入場予定人数</td></tr>
+                                <tr><td>1102</td><td>札幌太郎</td><td>2</td></tr>
+                            </table>
+                        </details>
+                    </div>
+                </div>
+
+                <p><strong>■ 列 of 紐付け（マッピング）の確認ポイント</strong><br>
+                Formsデータの列が自動的に判別されます。確認時には以下の点をご点検ください。</p>
+                <ul>
+                    <li>タイムスタンプには「完了時刻」が対応しているか確認してください。（重複回答時に、最も新しい送信内容のみを採用するために必要です）</li>
+                    <li>「生徒氏名」や「入場予定人数」がForms上の正しい設問名と紐付いているか確認してください。</li>
+                </ul>
+
+                <p><strong>■ 制限超過やマスター未登録時のアコーディオン表示</strong><br>
+                生徒の申請数が土曜券割当上限を越えた際や、割り当てマスターに存在しない年組番号の生徒が申請した際、システムは超過した招待客を自動的にカットします。調整されたデータは以下の枠組として展開・確認が可能です。</p>
+                <div class="accordion-container">
+                    <div class="accordion-header">1102 札幌 太郎 - 制限超過による調整 (1名カット)</div>
+                    <div class="accordion-body" style="display: block;">
+                        <p><strong>【現在の申請状況】:</strong> 生徒は一般公開の招待客として計 <strong>3名</strong>（来場者A、来場者B、来場者C）をFormsから申請しています。</p>
+                        <p><strong>【検出された問題点】:</strong> この生徒に事前に設定されている土曜券の配付制限枠は <strong>2枚</strong> です。そのため、制限を超えた招待客（来場者C）へのチケット発行は行えません。</p>
+                        <p><strong>【対応策・処理方針】:</strong> 制限枠内に収まる先頭の <strong>2名</strong>（来場者A、来場者B）のみチケットを割り当て、上限を超過した <strong>来場者C</strong> は出力ファイルから自動的にカットされます。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="manual-section">
+                <h3>第5章：データ出力後の事後作業について</h3>
+                <p>本システムでのデータ処理が完了した後は、以下の通り事後処理を進めてください。</p>
+                <ul>
+                    <li><strong>Web発券システムへの登録</strong>: <br>
+                    出力された <code>system_import.csv</code> は、Web発券サーバー（来場者がスマホ等でログインする画面）の管理画面にそのままインポートしてご使用ください。</li>
+                    <li><strong>配付用通知プリントの作成（Wordの差し込み印刷機能）</strong>: <br>
+                    生徒配付用のプリント作成には <code>print_merge.csv</code> を使用します。Wordで作成した配付ひな形を開き、「差し込み文書」タブから「宛先の選択 → 既存のリストを使用」でCSVを指定することで、全生徒分のID・PINが差し込まれたプリントを一括出力できます。</li>
+                    <li><strong>調整対象者への個別案内・対応</strong>: <br>
+                    制限により招待客や保護者が除外された生徒は、ダウンロードした <code>warnings_list_adjust.csv</code> を用いて個別に通知書を一括作成し、「制限枠を超過したため、一部のお客様の登録をカットしました」等の個別事後連絡を円滑に行うことができます。</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- =================== タブ1: ID/PIN 生成 =================== -->
+    <div id="generatorTab" class="tab-content">
+        <div class="guide-box">
+            <h3>🔰 ① ID/PIN 新規生成の使い方</h3>
+            <p>生徒や招待客に割り当てる前の、空の「ID」と「パスワード（PIN）」をランダムに事前作成する画面です。</p>
+            <ul>
+                <li>ルール（桁数や除外文字）を設定して、必要な件数を入力して生成します。</li>
+                <li>生成した空のリストはCSVとして保存し、「② Formsデータの結合」画面で読み込ませます。</li>
+            </ul>
+        </div>
+
+        <div class="status-bar">
+            <span id="statusTotalCreated">総生成履歴: 0件</span>
+            <span id="statusUsedIds">登録済ID数: 0 / 登録済PIN数: 0</span>
+        </div>
+
+        <div class="grid-2col">
+            <!-- ID設定 -->
+            <div class="card">
+                <h2>ID 生成ルール</h2>
+                <div class="form-group">
+                    <label>桁数</label>
+                    <input type="number" id="idLength" value="4" min="4" max="32" onchange="checkTheoreticalLimits()">
+                </div>
+                <div class="form-group">
+                    <label>使用する文字種</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" id="idUseNum" checked onchange="checkTheoreticalLimits()">数字 (0-9)</label>
+                        <label class="checkbox-label"><input type="checkbox" id="idUseUpper" onchange="checkTheoreticalLimits()">英大文字 (A-Z)</label>
+                        <label class="checkbox-label"><input type="checkbox" id="idUseLower" onchange="checkTheoreticalLimits()">英小文字 (a-z)</label>
+                        <label class="checkbox-label"><input type="checkbox" id="idUseSym" onchange="checkTheoreticalLimits()">記号</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>全体から除外する文字</label>
+                    <input type="text" id="idExclude" value="eE" placeholder="例: 0Oo1Il" oninput="checkTheoreticalLimits()">
+                    <div class="help-text">※Excelの指数表記バグ防止のためデフォルトで eE が除外されます</div>
+                </div>
+                <div class="form-group">
+                    <label>1文字目に使用しない文字</label>
+                    <input type="text" id="idExcludeFirst" value="0" oninput="checkTheoreticalLimits()">
+                </div>
+            </div>
+
+            <!-- PIN設定 -->
+            <div class="card">
+                <h2>PIN 生成ルール</h2>
+                <div class="form-group">
+                    <label>桁数</label>
+                    <input type="number" id="pinLength" value="4" min="4" max="32" onchange="checkTheoreticalLimits()">
+                </div>
+                <div class="form-group">
+                    <label>使用する文字種</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label"><input type="checkbox" id="pinUseNum" checked onchange="checkTheoreticalLimits()">数字 (0-9)</label>
+                        <label class="checkbox-label"><input type="checkbox" id="pinUseUpper" checked onchange="checkTheoreticalLimits()">英大文字 (A-Z)</label>
+                        <label class="checkbox-label"><input type="checkbox" id="pinUseLower" onchange="checkTheoreticalLimits()">英小文字 (a-z)</label>
+                        <label class="checkbox-label"><input type="checkbox" id="pinUseSym" onchange="checkTheoreticalLimits()">記号</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>全体から除外する文字</label>
+                    <input type="text" id="pinExclude" value="eE" placeholder="例: 0Oo1Il" oninput="checkTheoreticalLimits()">
+                </div>
+                <div class="form-group">
+                    <label>1文字目に使用しない文字</label>
+                    <input type="text" id="pinExcludeFirst" value="0" oninput="checkTheoreticalLimits()">
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>生成実行</h2>
+            <div class="controls-row">
+                <div class="form-group" style="margin-bottom: 0; flex-grow: 1;">
+                    <label>生成件数</label>
+                    <input type="number" id="generateCount" value="100" min="1" max="10000" oninput="checkTheoreticalLimits()">
+                </div>
+                <button class="btn btn-primary btn-block" style="width: auto;" onclick="generateData()">データを生成する</button>
+            </div>
+            <div id="theoreticalLimitAlert" class="alert" style="display: none; margin-top: 15px;"></div>
+        </div>
+
+        <div class="card" id="resultArea" style="display: none;">
+            <h2>直近の生成結果 <span id="currentCount"></span></h2>
+            <div class="controls-row">
+                <button class="btn btn-csv" onclick="downloadCSV()">チケット用CSVダウンロード</button>
+            </div>
+            <p class="help-text">※プレビューは先頭10件のみ表示しています</p>
+            <table>
+                <thead>
+                    <tr><th>No.</th><th>ID</th><th>PIN</th></tr>
+                </thead>
+                <tbody id="previewTable"></tbody>
+            </table>
+
+            <!-- 次のステップへのナビゲーション誘導 -->
+            <div class="next-step-box" id="nextStepNav" style="display: block;">
+                <h3>👉 次のステップ</h3>
+                <p>空のチケットリストのダウンロードが完了しました。次に<strong>「② Formsデータの結合（本番処理）」</strong>タブをクリックし、ここでダウンロードしたCSVファイルを <strong>「④ ID/PINリスト」</strong> 欄に読み込ませて処理を開始してください。</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>履歴・バックアップ管理</h2>
+            <div class="controls-row">
+                <button class="btn btn-secondary" onclick="exportBackupJSON()">履歴バックアップ保存 (JSON)</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">履歴の復元 (JSON)</button>
+                <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="importBackupJSON(event)">
+                <button class="btn btn-danger" style="margin-left: auto;" onclick="clearHistory()">全履歴リセット</button>
+            </div>
+            <h3 style="margin-top: 15px; font-size: 1rem;">生成履歴ログ</h3>
+            <table>
+                <thead>
+                    <tr><th>生成日時</th><th>件数</th><th>IDルール</th><th>PINルール</th><th>再出力</th></tr>
+                </thead>
+                <tbody id="historyTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+
+    <!-- =================== タブ2: 結合処理 =================== -->
+    <div id="processorTab" class="tab-content">
+        <div class="guide-box">
+            <h3>🔰 ② Formsデータの結合（本番処理）の使い方</h3>
+            <p>Forms回答データと、事前作成した空のID/PINリストを紐付け、「システム登録用」「印刷用」のデータを作ります。</p>
+            <ol>
+                <li><strong>STEP 1: 各データ入力</strong>を行います。最初からコピペ入力用のボックスが表示されています。</li>
+                <li><strong>STEP 2: 列の紐付け（マッピング）</strong>が自動推測されます。ズレがある場合は正しい項目を選択し直してください。</li>
+                <li><strong>STEP 3: 処理実行ボタン</strong>を押し、完了後に生成される2つのファイルを保存します。</li>
+            </ol>
+        </div>
+
+        <!-- Dynamic Limit Configuration -->
+        <div class="card">
+            <h2>1. 公開日ごとの割当・制限設定</h2>
+            <div class="grid-2col">
+                <div class="form-group" id="parentLimitGroup">
+                    <label>保護者公開日の1家庭あたりの最大制限人数</label>
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 5px;">
+                        <input type="number" id="maxParents" value="5" min="1" max="20" style="width: 100px; background-color: #f1f2f6;" disabled>
+                        <label class="checkbox-label" style="font-weight: bold; color: var(--success-color);">
+                            <input type="checkbox" id="parentUnlimited" checked onchange="toggleParentUnlimited()"> 制限なし（無制限）
+                        </label>
+                    </div>
+                    <p class="help-text">※「制限なし」にチェックを入れると、Formsで回答された人数分をそのまま発券します。チェックを外すと、設定された上限を超える人数は自動的にカットされます。</p>
+                </div>
+                <div class="form-group" id="inviteeGroup">
+                    <label>一般公開日の1生徒あたりの最大招待可能数</label>
+                    <input type="number" id="maxInvitees" value="3" min="1" max="20" onchange="onLimitConfigChange()">
+                    <p class="help-text">※一般公開日の招待客回答データ(③)を入力すると、自動調整されます。</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Uploads & Copy-Paste Fallback (コピペ入力をデフォルトに設定) -->
+        <div class="card">
+            <h2>2. データの読み込み（メモ帳テキストのコピペ、またはファイル選択）</h2>
+            <p class="help-text" style="margin-bottom:15px; color:#e67e22;">※Excel等から書き出したCSVを「メモ帳」で開き、全選択（Ctrl+A）してコピーし、下記の各テキストエリアへ貼り付け（Ctrl+V）てください。ファイル選択による直接読込も可能です（文字コードは自動で判定されます）。</p>
+            
+            <!-- ① 割り当てマスター -->
+            <div class="form-group" id="fg_quota" style="border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; margin-bottom:15px;">
+                <label>
+                    ① 年組番号と許可した土曜券(旧招待券)の枚数
+                    <span id="badge_quota" class="file-status">未読込</span>
+                </label>
+                
+                <!-- 初期状態で表示されるコピペエリア -->
+                <div id="paste_area_quota" class="paste-textarea-container">
+                    <p class="help-text" style="color:var(--accent-color);">メモ帳等でファイルを開いて全コピーし、以下に貼り付けてください。</p>
+                    <textarea id="paste_quota" rows="4" placeholder="メモ帳で開いたデータをここにペーストしてください" oninput="handlePastedInput('quota')"></textarea>
+                </div>
+                
+                <!-- ファイル選択エリア（デフォルトでは非表示） -->
+                <div id="file_area_quota" class="file-input-container">
+                    <input type="file" id="quotaFile" style="width:100%;">
+                </div>
+
+                <div id="preview_quota" class="preview-box" style="display:none;"></div>
+
+                <div style="text-align: right; margin-top:5px;">
+                    <button id="btn_toggle_quota" class="btn btn-secondary btn-sm" onclick="toggleInputMethod('quota')">ファイル選択に切り替える</button>
+                </div>
+                <p class="help-text">A列に「年組番号」、B列に「許可した土曜券の枚数」が入ったリスト（割り当てマスター）</p>
+            </div>
+
+            <!-- ② 保護者Forms -->
+            <div class="form-group" id="fg_formsPar" style="border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; margin-bottom:15px;">
+                <label>
+                    ② 【保護者公開】入場者フォーム回答
+                    <span id="badge_formsPar" class="file-status">未読込</span>
+                </label>
+                
+                <div id="paste_area_formsPar" class="paste-textarea-container">
+                    <p class="help-text" style="color:var(--accent-color);">メモ帳等でファイルを開いて全コピーし、以下に貼り付けてください。</p>
+                    <textarea id="paste_formsPar" rows="4" placeholder="メモ帳で開いたデータをここにペーストしてください" oninput="handlePastedInput('formsPar')"></textarea>
+                </div>
+
+                <div id="file_area_formsPar" class="file-input-container">
+                    <input type="file" id="formsParFile" style="width:100%;">
+                </div>
+
+                <div id="preview_formsPar" class="preview-box" style="display:none;"></div>
+
+                <div style="text-align: right; margin-top:5px;">
+                    <button id="btn_toggle_formsPar" class="btn btn-secondary btn-sm" onclick="toggleInputMethod('formsPar')">ファイル選択に切り替える</button>
+                </div>
+                <div class="help-text" style="margin-top: 5px;">
+                    データの列に「完了時刻 (タイムスタンプ)」「年組番号」「生徒氏名」「入場予定人数」が含まれている必要があります。
+                </div>
+            </div>
+
+            <!-- ③ 一般招待者Forms -->
+            <div class="form-group" id="fg_formsInv" style="border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; margin-bottom:15px;">
+                <label>
+                    ③ 【一般公開】招待者フォーム回答
+                    <span id="badge_formsInv" class="file-status">未読込</span>
+                </label>
+                
+                <div id="paste_area_formsInv" class="paste-textarea-container">
+                    <p class="help-text" style="color:var(--accent-color);">メモ帳等でファイルを開いて全コピーし、以下に貼り付けてください。</p>
+                    <textarea id="paste_formsInv" rows="4" placeholder="メモ帳で開いたデータをここにペーストしてください" oninput="handlePastedInput('formsInv')"></textarea>
+                </div>
+
+                <div id="file_area_formsInv" class="file-input-container">
+                    <input type="file" id="formsInvFile" style="width:100%;">
+                </div>
+
+                <div id="preview_formsInv" class="preview-box" style="display:none;"></div>
+
+                <div style="text-align: right; margin-top:5px;">
+                    <button id="btn_toggle_formsInv" class="btn btn-secondary btn-sm" onclick="toggleInputMethod('formsInv')">ファイル選択に切り替える</button>
+                </div>
+                <div class="help-text" style="margin-top: 5px;">
+                    データの列に「完了時刻 (タイムスタンプ)」「年組番号」「生徒氏名」、および「招待者ごとの氏名・続柄」が含まれている必要があります。
+                </div>
+            </div>
+
+            <!-- ④ ID/PIN リスト -->
+            <div class="form-group" id="fg_idpin" style="border: 1px solid var(--border-color); padding: 12px; border-radius: 6px;">
+                <label>
+                    ④ ID/PIN リスト
+                    <span id="badge_idpin" class="file-status">未読込</span>
+                </label>
+                
+                <div id="paste_area_idpin" class="paste-textarea-container">
+                    <p class="help-text" style="color:var(--accent-color);">生成した空チケットデータをExcel等からCSVにしてメモ帳で開き、全コピーして以下に貼り付けてください。</p>
+                    <textarea id="paste_idpin" rows="4" placeholder="メモ帳で開いたデータをここにペーストしてください" oninput="handlePastedInput('idpin')"></textarea>
+                </div>
+
+                <div id="file_area_idpin" class="file-input-container">
+                    <input type="file" id="idpinFile" style="width:100%;">
+                </div>
+
+                <div id="preview_idpin" class="preview-box" style="display:none;"></div>
+
+                <div style="text-align: right; margin-top:5px;">
+                    <button id="btn_toggle_idpin" class="btn btn-secondary btn-sm" onclick="toggleInputMethod('idpin')">ファイル選択に切り替える</button>
+                </div>
+                <p class="help-text">「① ID/PINの新規生成」でダウンロードした空チケットリストを指定します</p>
+            </div>
+        </div>
+
+        <!-- Dynamic Column Mapping -->
+        <div class="card" id="mappingCard" style="display: none;">
+            <h2>3. Forms列の紐付け（マッピング）確認</h2>
+            <div style="background-color: #fff9db; border-left: 4px solid #f59f00; padding: 10px; margin-bottom: 15px; font-size: 0.85rem; font-weight: bold; color: #d9480f;">
+                ⚠️ 処理実行前の重要なお願い：<br>
+                システムの自動解析によって最適と推測された列が選択されていますが、実際のデータ配置と異なる場合があります。必ず各項目が正しいデータ列を選択しているか、目視でご確認ください。
+            </div>
+            <div class="mapping-container">
+                <div class="mapping-box">
+                    <h3>【保護者公開】フォームの列設定</h3>
+                    <div id="mappingControlsPar"></div>
+                </div>
+                <div class="mapping-box">
+                    <h3>【一般公開】フォームの列設定</h3>
+                    <div id="mappingControlsInv"></div>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-block" style="margin-top:20px;" onclick="processData()">データ処理を実行する</button>
+        </div>
+
+        <!-- Processing Log & Structured Alerts & Downloads -->
+        <div class="card" id="executeCard" style="display: none;">
+            <h2>4. 処理結果と確認事項</h2>
+            
+            <!-- 構造化された警告確認エリア（折りたたみアコーディオン） -->
+            <div id="structuredWarningsArea" style="display: none; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #fed7d7; padding-bottom: 5px; flex-wrap: wrap; gap: 10px;">
+                    <h3 style="font-size: 1.1rem; color: var(--danger-color); margin: 0;">⚠️ 処理中に検出された調整事項</h3>
+                    <button class="btn btn-secondary btn-sm" onclick="downloadWarningsCSV()">調整対象者一覧をCSVダウンロード</button>
+                </div>
+                <p class="help-text" style="margin-bottom: 12px; color: #555;">
+                    制限枠の超過、または「割り当てマスター未登録」などの原因により一部調整（自動足切り）されたデータです。項目をクリックすると、詳細情報を確認できます。<br>
+                    <strong>※この警告が出た生徒向けの個別連絡用プリントは、右上のボタンから「調整対象者一覧CSV」をダウンロードし、Word差し込み印刷を活用して一括作成できます。</strong>
+                </p>
+                <div id="warningsList"></div>
+            </div>
+
+            <div id="logArea">待機中...</div>
+
+            <!-- エラー時のヘルプトラブルシューターエリア -->
+            <div id="troubleshooterArea" class="trouble-card">
+                <h3>❌ 処理実行時にエラーが発生しました</h3>
+                <p style="margin-bottom: 8px;">原因として、以下のような可能性が考えられます。以下の内容を確認・是正してください。</p>
+                <ul id="troubleshooterSolutions"></ul>
+                <p style="margin-top: 8px; font-size: 0.8rem; color: #5c0d12;">※システムエラー詳細: <span id="troubleshooterMsg"></span></p>
+            </div>
+
+            <div id="downloadArea" class="controls-row" style="display: none; padding-top: 15px; border-top: 1px solid #eee; margin-top: 20px;">
+                <div class="download-box">
+                    <h3>🎉 処理が正常に完了しました！</h3>
+                    <p style="font-size: 0.9rem; color: #37b24d; font-weight: bold; margin-bottom: 15px;">
+                        ⚠️ 注意：後工程を進めるために、以下の【①・②のCSVファイルは両方とも必須】です。必ず両方を保存してください。
+                    </p>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 280px; background: white; padding: 15px; border-radius: 6px; border: 1px solid #c0eb75;">
+                            <strong style="color: var(--primary-color); font-size: 0.95rem;">① システムインポート用 CSV</strong>
+                            <p class="help-text" style="margin-bottom: 12px; height: 35px;">Web発券サーバー（来場者がログインする予約サイト等）の管理画面に登録・取り込むための、縦持ち構成のデータです。</p>
+                            <button class="btn btn-success btn-block" onclick="downloadSystemCSV()">① system_import.csv 保存</button>
+                        </div>
+                        <div style="flex: 1; min-width: 280px; background: white; padding: 15px; border-radius: 6px; border: 1px solid #c0eb75;">
+                            <strong style="color: var(--primary-color); font-size: 0.95rem;">② Word差し込み印刷用 CSV</strong>
+                            <p class="help-text" style="margin-bottom: 12px; height: 35px;">生徒全員に配布する「ID・パスワード通知書」のプリントを、Microsoft Wordの差し込み印刷で一括生成するためのデータです。</p>
+                            <button class="btn btn-success btn-block" onclick="downloadPrintCSV()">② print_merge.csv 保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- コピーライト・連絡先フッター（CCライセンス表記を追加） -->
+    <div class="footer-credits">
+        システムおよびマニュアルに関するお問い合わせ:<br>
+        <strong>10期生 安部祥太朗</strong>（連絡先: <a href="mailto:shougayaki2008.icloud.com@gmail.com">shougayaki2008.icloud.com@gmail.com</a>）<br>
+        GitHubレポジトリ: <a href="https://github.com/shougayaki-1/id-pin-generator" target="_blank">https://github.com/shougayaki-1/id-pin-generator</a><br>
+        <span style="display: inline-block; margin-top: 10px; font-size: 0.8rem; line-height: 1.5;">
+            本システムは <a href="https://creativecommons.org/licenses/by-nc/4.0/deed.ja" target="_blank" rel="noopener">CC BY-NC 4.0（表示 - 非営利 4.0 国際）</a> ライセンスの下に提供されています。<br>
+            学校祭・教育目的などの非営利利用であれば、自由に改変・使用・再配布いただけます。<br>
+            ©2026 安部祥太朗 <a href="https://shoug.org" target="_blank">https://shoug.org</a>
+        </span>
+    </div>
+</div>
+
+<script>
+    // ==================== 共通処理 ====================
+    function switchTab(tabId, btn) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+    }
+
+    const CHAR_SETS = {
+        num: '0123456789',
+        upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        lower: 'abcdefghijklmnopqrstuvwxyz',
+        sym: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+    };
+    const STORAGE_KEY = 'unified_ticket_generator_data';
+
+    // ==================== ID/PIN 生成ロジック ====================
+    let appData = {
+        settings: {
+            id: { length: 4, useNum: true, useUpper: false, useLower: false, useSym: false, exclude: 'eE', excludeFirst: '0' },
+            pin: { length: 4, useNum: true, useUpper: true, useLower: false, useSym: false, exclude: 'eE', excludeFirst: '0' },
+            generateCount: 100
+        },
+        history: [],
+        usedIds: [],
+        usedPins: []
+    };
+    let currentGeneratedBatch = [];
+
+    window.onload = function() {
+        loadData();
+        applySettingsToUI();
+        updateUI();
+        checkHistoryExpiry();
+        checkTheoreticalLimits();
+
+        // ファイル入力のイベントリスナーを登録（文字コード自動判別ローダーを接続）
+        document.getElementById('quotaFile').addEventListener('change', e => loadProcessorFile(e, 'quota'));
+        document.getElementById('formsParFile').addEventListener('change', e => loadProcessorFile(e, 'formsPar'));
+        document.getElementById('formsInvFile').addEventListener('change', e => loadProcessorFile(e, 'formsInv'));
+        document.getElementById('idpinFile').addEventListener('change', e => loadProcessorFile(e, 'idpin'));
+    };
+
+    function loadData() {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                appData.settings = { ...getDefaultSettings(), ...parsed.settings };
+                appData.history = parsed.history || [];
+                appData.usedIds = parsed.usedIds || [];
+                appData.usedPins = parsed.usedPins || [];
+            } else {
+                appData.settings = getDefaultSettings();
+            }
+        } catch (e) {
+            console.error(e);
+            appData.settings = getDefaultSettings();
+        }
+    }
+
+    function checkHistoryExpiry() {
+        if (appData.history && appData.history.length > 0) {
+            const latest = appData.history[0];
+            if (latest.batchId) {
+                const timestamp = parseInt(latest.batchId.replace('BATCH_', ''));
+                if (!isNaN(timestamp)) {
+                    const sixMonthsMs = 6 * 30 * 24 * 60 * 60 * 1000;
+                    if (Date.now() - timestamp > sixMonthsMs) {
+                        setTimeout(() => {
+                            if (confirm(`【お知らせ】\n前回のID/PIN生成（${latest.date}）から6ヶ月以上経過しています。\n\n今年度用の処理を行う場合は、前年度データとの重複（二重発行）を避けるために古い履歴データをリセットすることをおすすめします。\n\n今すぐすべての履歴データをリセットしますか？\n（リセットする前に自動的にバックアップ(JSONファイル)がダウンロードされます）`)) {
+                                clearHistory();
+                            }
+                        }, 600);
+                    }
+                }
+            }
+        }
+    }
+
+    function saveData() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        } catch (e) {
+            alert("【ブラウザの保存領域エラー】\n履歴データ保存用の容量上限に達しました。履歴情報を安全に維持するため、この画面下部にある『履歴バックアップ保存 (JSON)』を実行して保存した後に、『全履歴リセット』を実行して容量を開放してください。");
+        }
+    }
+
+    function getDefaultSettings() {
+        return {
+            id: { length: 4, useNum: true, useUpper: false, useLower: false, useSym: false, exclude: 'eE', excludeFirst: '0' },
+            pin: { length: 4, useNum: true, useUpper: true, useLower: false, useSym: false, exclude: 'eE', excludeFirst: '0' },
+            generateCount: 100
+        };
+    }
+
+    function applySettingsToUI() {
+        document.getElementById('idLength').value = appData.settings.id.length;
+        document.getElementById('idUseNum').checked = appData.settings.id.useNum;
+        document.getElementById('idUseUpper').checked = appData.settings.id.useUpper;
+        document.getElementById('idUseLower').checked = appData.settings.id.useLower;
+        document.getElementById('idUseSym').checked = appData.settings.id.useSym;
+        document.getElementById('idExclude').value = appData.settings.id.exclude;
+        document.getElementById('idExcludeFirst').value = appData.settings.id.excludeFirst;
+
+        document.getElementById('pinLength').value = appData.settings.pin.length;
+        document.getElementById('pinUseNum').checked = appData.settings.pin.useNum;
+        document.getElementById('pinUseUpper').checked = appData.settings.pin.useUpper;
+        document.getElementById('pinUseLower').checked = appData.settings.pin.useLower;
+        document.getElementById('pinUseSym').checked = appData.settings.pin.useSym;
+        document.getElementById('pinExclude').value = appData.settings.pin.exclude;
+        document.getElementById('pinExcludeFirst').value = appData.settings.pin.excludeFirst;
+
+        document.getElementById('generateCount').value = appData.settings.generateCount;
+    }
+
+    function saveSettingsFromUI() {
+        appData.settings.id.length = parseInt(document.getElementById('idLength').value) || 4;
+        appData.settings.id.useNum = document.getElementById('idUseNum').checked;
+        appData.settings.id.useUpper = document.getElementById('idUseUpper').checked;
+        appData.settings.id.useLower = document.getElementById('idUseLower').checked;
+        appData.settings.id.useSym = document.getElementById('idUseSym').checked;
+        appData.settings.id.exclude = document.getElementById('idExclude').value;
+        appData.settings.id.excludeFirst = document.getElementById('idExcludeFirst').value;
+
+        appData.settings.pin.length = parseInt(document.getElementById('pinLength').value) || 4;
+        appData.settings.pin.useNum = document.getElementById('pinUseNum').checked;
+        appData.settings.pin.useUpper = document.getElementById('pinUseUpper').checked;
+        appData.settings.pin.useLower = document.getElementById('pinUseLower').checked;
+        appData.settings.pin.useSym = document.getElementById('pinUseSym').checked;
+        appData.settings.pin.exclude = document.getElementById('pinExclude').value;
+        appData.settings.pin.excludeFirst = document.getElementById('pinExcludeFirst').value;
+
+        appData.settings.generateCount = parseInt(document.getElementById('generateCount').value) || 100;
+        saveData();
+    }
+
+    // 警告メッセージ用の非保存設定同期
+    function saveSettingsFromUIWithoutAlert() {
+        appData.settings.id.length = parseInt(document.getElementById('idLength').value) || 4;
+        appData.settings.id.useNum = document.getElementById('idUseNum').checked;
+        appData.settings.id.useUpper = document.getElementById('idUseUpper').checked;
+        appData.settings.id.useLower = document.getElementById('idUseLower').checked;
+        appData.settings.id.useSym = document.getElementById('idUseSym').checked;
+        appData.settings.id.exclude = document.getElementById('idExclude').value;
+        appData.settings.id.excludeFirst = document.getElementById('idExcludeFirst').value;
+
+        appData.settings.pin.length = parseInt(document.getElementById('pinLength').value) || 4;
+        appData.settings.pin.useNum = document.getElementById('pinUseNum').checked;
+        appData.settings.pin.useUpper = document.getElementById('pinUseUpper').checked;
+        appData.settings.pin.useLower = document.getElementById('pinUseLower').checked;
+        appData.settings.pin.useSym = document.getElementById('pinUseSym').checked;
+        appData.settings.pin.exclude = document.getElementById('pinExclude').value;
+        appData.settings.pin.excludeFirst = document.getElementById('pinExcludeFirst').value;
+
+        appData.settings.generateCount = parseInt(document.getElementById('generateCount').value) || 100;
+    }
+
+    // 理論限界の上限チェック
+    function checkTheoreticalLimits() {
+        saveSettingsFromUIWithoutAlert();
+        const settings = appData.settings;
+        const idPool = buildCharPool(settings.id);
+        const pinPool = buildCharPool(settings.pin);
+        const count = settings.generateCount;
+
+        const calcMax = (pool, len, excludeFirst) => {
+            if (!pool) return 0;
+            const usableFirst = pool.split('').filter(c => !excludeFirst.includes(c)).length;
+            if (usableFirst <= 0 || len <= 0) return 0;
+            return usableFirst * Math.pow(pool.length, len - 1);
+        };
+
+        const maxIds = calcMax(idPool, settings.id.length, settings.id.excludeFirst);
+        const maxPins = calcMax(pinPool, settings.pin.length, settings.pin.excludeFirst);
+
+        const alertEl = document.getElementById('theoreticalLimitAlert');
+        if (maxIds === 0 || maxPins === 0) {
+            alertEl.style.display = 'block';
+            alertEl.className = 'alert alert-danger';
+            alertEl.innerHTML = '⚠️ 警告: 設定された条件では、使用可能な文字プールが空になっているか、生成不可能な組み合わせ設定です。設定文字種または桁数を見直してください。';
+            return;
+        }
+
+        const limit = Math.min(maxIds, maxPins);
+
+        if (count > limit * 0.5) {
+            alertEl.style.display = 'block';
+            alertEl.className = 'alert alert-danger';
+            alertEl.innerHTML = `⚠️ 警告: 設定された条件での最大可能パターン数は <strong>${limit.toLocaleString()}</strong> 通りです。要求された生成件数 <strong>${count.toLocaleString()}</strong> 件はこの限界の50%を超えており、重複回避時のループが原因で生成中にエラーやフリーズが発生する可能性が極めて高いです。桁数を増やすか、使用する文字種を増やしてください。`;
+        } else if (count > limit * 0.1) {
+            alertEl.style.display = 'block';
+            alertEl.className = 'alert alert-warning';
+            alertEl.innerHTML = `⚠️ 注意: 設定された条件での最大可能パターン数は <strong>${limit.toLocaleString()}</strong> 通りです。生成件数 ${count.toLocaleString()} 件に対して、組み合わせがやや枯渇ぎみです。一意に重複なく生成可能ですが、余裕を持たせるために桁数を追加することをお勧めします。`;
+        } else {
+            alertEl.style.display = 'none';
+        }
+    }
+
+    function buildCharPool(typeSettings) {
+        let pool = '';
+        if (typeSettings.useNum) pool += CHAR_SETS.num;
+        if (typeSettings.useUpper) pool += CHAR_SETS.upper;
+        if (typeSettings.useLower) pool += CHAR_SETS.lower;
+        if (typeSettings.useSym) pool += CHAR_SETS.sym;
+
+        if (typeSettings.exclude) {
+            const excludeRegex = new RegExp(`[${escapeRegex(typeSettings.exclude)}]`, 'g');
+            pool = pool.replace(excludeRegex, '');
+        }
+        return pool;
+    }
+
+    function escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function generateRandomString(length, pool, excludeFirstChars) {
+        let result = '';
+        const poolLength = pool.length;
+        let firstChar = '';
+        let attempts = 0;
+        do {
+            firstChar = pool.charAt(Math.floor(Math.random() * poolLength));
+            attempts++;
+            if (attempts > 2000) throw new Error("1文字目の生成ルールが厳しすぎます。");
+        } while (excludeFirstChars.includes(firstChar));
+        result += firstChar;
+
+        for (let i = 1; i < length; i++) {
+            result += pool.charAt(Math.floor(Math.random() * poolLength));
+        }
+        return result;
+    }
+
+    function generateData() {
+        saveSettingsFromUI();
+        const settings = appData.settings;
+        const count = settings.generateCount;
+
+        const idPool = buildCharPool(settings.id);
+        const pinPool = buildCharPool(settings.pin);
+
+        if (idPool.length === 0) return alert("IDに使用できる文字がありません。");
+        if (pinPool.length === 0) return alert("PINに使用できる文字がありません。");
+
+        const usedIdsSet = new Set(appData.usedIds);
+        const usedPinsSet = new Set(appData.usedPins);
+
+        let newBatch = [];
+        let newIds = [];
+        let newPins = [];
+
+        try {
+            const maxAttempts = 2000;
+            for (let i = 0; i < count; i++) {
+                let newId, newPin;
+                let idAttempts = 0;
+                let pinAttempts = 0;
+
+                do {
+                    newId = generateRandomString(settings.id.length, idPool, settings.id.excludeFirst);
+                    idAttempts++;
+                    if (idAttempts > maxAttempts) throw new Error("IDの重複回避限界に達しました。文字プールを増やすか、桁数を大きくしてください。");
+                } while (usedIdsSet.has(newId));
+                usedIdsSet.add(newId);
+
+                do {
+                    newPin = generateRandomString(settings.pin.length, pinPool, settings.pin.excludeFirst);
+                    pinAttempts++;
+                    if (pinAttempts > maxAttempts) throw new Error("PINの重複回避限界に達しました。文字プールを増やすか、桁数を大きくしてください。");
+                } while (usedPinsSet.has(newPin));
+                usedPinsSet.add(newPin);
+
+                newBatch.push({ id: newId, pin: newPin });
+                newIds.push(newId);
+                newPins.push(newPin);
+            }
+        } catch (e) {
+            alert("生成エラー: " + e.message);
+            return;
+        }
+
+        const now = new Date();
+        const batchInfo = {
+            batchId: 'BATCH_' + now.getTime(),
+            date: now.toLocaleString('ja-JP'),
+            count: count,
+            idRules: { ...settings.id },
+            pinRules: { ...settings.pin },
+            data: newBatch
+        };
+
+        appData.history.unshift(batchInfo);
+        appData.usedIds.push(...newIds);
+        appData.usedPins.push(...newPins);
+        
+        saveData();
+        currentGeneratedBatch = newBatch;
+        
+        updateUI();
+        renderPreview();
+        document.getElementById('resultArea').style.display = 'block';
+        document.getElementById('nextStepNav').style.display = 'block';
+        alert(`${count}件の空ID/PINを新規生成しました！「チケット用CSVダウンロード」から保存してください。`);
+    }
+
+    function updateUI() {
+        let totalCount = appData.history.reduce((sum, r) => sum + r.count, 0);
+        document.getElementById('statusTotalCreated').innerText = `総生成履歴: ${totalCount.toLocaleString()}件`;
+        document.getElementById('statusUsedIds').innerText = `登録済ID数: ${appData.usedIds.length.toLocaleString()} / 登録済PIN数: ${appData.usedPins.length.toLocaleString()}`;
+
+        const tbody = document.getElementById('historyTable');
+        tbody.innerHTML = '';
+        if (appData.history.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">履歴はありません</td></tr>';
+        } else {
+            appData.history.forEach(record => {
+                const tr = document.createElement('tr');
+                const formatRules = (rules) => `${rules.length}桁, ${rules.useNum ? '数':''}${rules.useUpper?'大':''}${rules.useLower?'小':''}${rules.useSym?'記':''}`;
+                const hasData = record.data && record.data.length > 0;
+                const downloadBtn = hasData 
+                    ? `<button class="btn btn-secondary btn-sm" onclick="downloadHistoricalData('${record.batchId}')">再出力</button>`
+                    : `<span>なし</span>`;
+
+                tr.innerHTML = `
+                    <td>${record.date}</td>
+                    <td>${record.count.toLocaleString()} 件</td>
+                    <td>${formatRules(record.idRules)}</td>
+                    <td>${formatRules(record.pinRules)}</td>
+                    <td style="text-align:center;">${downloadBtn}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    }
+
+    function renderPreview() {
+        document.getElementById('currentCount').innerText = `(${currentGeneratedBatch.length}件)`;
+        const tbody = document.getElementById('previewTable');
+        tbody.innerHTML = '';
+        const limit = Math.min(currentGeneratedBatch.length, 10);
+        for (let i = 0; i < limit; i++) {
+            const item = currentGeneratedBatch[i];
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${i + 1}</td><td>${item.id}</td><td>${item.pin}</td>`;
+            tbody.appendChild(tr);
+        }
+    }
+
+
+    // ==================== タブ2: 自動結合・標準化・処理ロジック ====================
+    let quotaMap = new Map();
+    let formsParData = [];
+    let formsInvData = [];
+    let idpinRawData = [];
+    let generatedSystemData = [];
+    let generatedPrintData = [];
+    let flaggedIssues = []; 
+    let cutCount = 0;
+
+    // 年組番号の全角半角、記号表記揺れ標準化クレンジング関数
+    function standardizeClassNum(str) {
+        if (!str) return '';
+        // 全角英数字を半角英数字に変換
+        let res = str.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {
+            return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+        });
+        // 漢数字を半角算用数字に変換（一二三四...）
+        const kanjiNums = {'一':'1','二':'2','三':'3','四':'4','五':'5','六':'6','七':'7','八':'8','九':'9','〇':'0','十':'10'};
+        res = res.split('').map(c => kanjiNums[c] || c).join('');
+        
+        // 全角半角の代表的な記号や全角スペース・「年」「組」「番」文字などを削除・置換
+        res = res.replace(/[－ー—‐\-\s]/g, '');
+        res = res.replace(/[^0-9a-zA-Z]/g, '');
+        return res.toUpperCase();
+    }
+
+    // プレビュー用に文字列全体を簡易サニタイズ（クレンジング）する関数
+    function sanitizePreviewText(str) {
+        if (str === null || str === undefined) return '';
+        let res = str.toString();
+        // 全角英数字を半角に変換
+        res = res.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function(s) {
+            return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+        });
+        // 全角スペースを半角スペースに統一
+        res = res.replace(/　/g, ' ');
+        // 全角ハイフン・ダッシュ類を半角に統一
+        res = res.replace(/[－ー—‐]/g, '-');
+        return res.trim();
+    }
+
+    // 文字コード (UTF-8, Shift-JIS) 自動検出＆ロード用の関数
+    function detectAndReadText(file, callback) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const buffer = e.target.result;
+            const view = new Uint8Array(buffer);
+            
+            // UTF-8としての文字バイトパターン適合性判定
+            let isUTF8 = true;
+            let i = 0;
+            while (i < view.length) {
+                if (view[i] < 0x80) {
+                    i++;
+                } else if ((view[i] & 0xE0) === 0xC0) {
+                    if (i + 1 >= view.length || (view[i+1] & 0xC0) !== 0x80) { isUTF8 = false; break; }
+                    i += 2;
+                } else if ((view[i] & 0xF0) === 0xE0) {
+                    if (i + 2 >= view.length || (view[i+1] & 0xC0) !== 0x80 || (view[i+2] & 0xC0) !== 0x80) { isUTF8 = false; break; }
+                    i += 3;
+                } else if ((view[i] & 0xF8) === 0xF0) {
+                    if (i + 3 >= view.length || (view[i+1] & 0xC0) !== 0x80 || (view[i+2] & 0xC0) !== 0x80 || (view[i+3] & 0xC0) !== 0x80) { isUTF8 = false; break; }
+                    i += 4;
+                } else {
+                    isUTF8 = false;
+                    break;
+                }
+            }
+            
+            const decoder = new TextDecoder(isUTF8 ? 'utf-8' : 'shift-jis');
+            const text = decoder.decode(view);
+            callback(text);
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    // 動的マッピング生成（※保護者側は人数だけを扱い、氏名・続柄をカットしてマッピングを大幅簡略化）
+    function buildDynamicMapDefinitions(prefix, labelText, count) {
+        let def = [
+            { id: prefix + '_Time', label: 'タイムスタンプ(必須)', keys: ['完了時刻', 'Timestamp', 'タイムスタンプ'] },
+            { id: prefix + '_Class', label: '年組番号(必須)', keys: ['年組番号', 'クラス', '学級', '組番号'] },
+            { id: prefix + '_Student', label: '生徒氏名(必須)', keys: ['生徒氏名', '氏名', '生徒の名前'] }
+        ];
+        if (prefix === 'p') {
+            def.push({ id: 'p_Num', label: '保護者の入場予定人数(必須)', keys: ['入場予定人数', '人数', '来場者数', '保護者数'] });
+        } else if (prefix === 'i') {
+            for (let i = 1; i <= count; i++) {
+                def.push({ id: `${prefix}_N${i}`, label: `${labelText}${i} 氏名`, keys: [`${labelText}${i}`, '氏名'] });
+                def.push({ id: `${prefix}_R${i}`, label: `${labelText}${i} 続柄`, keys: [`${labelText}${i}`, '続柄'] });
+            }
+        }
+        return def;
+    }
+
+    function toggleInputMethod(type) {
+        const pasteArea = document.getElementById(`paste_area_${type}`);
+        const fileArea = document.getElementById(`file_area_${type}`);
+        const btn = document.getElementById(`btn_toggle_${type}`);
+        
+        if (pasteArea.style.display === "none") {
+            pasteArea.style.display = "block";
+            fileArea.style.display = "none";
+            btn.innerText = "ファイル選択に切り替える";
+        } else {
+            pasteArea.style.display = "none";
+            fileArea.style.display = "block";
+            btn.innerText = "コピペ入力に切り替える";
+        }
+    }
+
+    function toggleParentUnlimited() {
+        const isUnlimited = document.getElementById('parentUnlimited').checked;
+        const input = document.getElementById('maxParents');
+        if (isUnlimited) {
+            input.disabled = true;
+            input.style.backgroundColor = '#f1f2f6';
+        } else {
+            input.disabled = false;
+            input.style.backgroundColor = 'white';
+        }
+    }
+
+    // パースされたデータ配列に対する共通登録処理
+    function processParsedData(parsed, type) {
+        if (type === 'quota') {
+            quotaMap.clear();
+            for (let i = 1; i < parsed.length; i++) {
+                if (parsed[i][0]) {
+                    const cleanKey = standardizeClassNum(parsed[i][0]);
+                    quotaMap.set(cleanKey, parseInt(parsed[i][1]) || 0);
+                }
+            }
+            setElementLoaded('fg_quota', 'badge_quota', parsed.length);
+            updatePreviewUI('quota', parsed);
+        } else if (type === 'formsPar') {
+            formsParData = parsed;
+            buildMappingUI(formsParData[0], buildDynamicMapDefinitions('p', '入場者', 0), 'mappingControlsPar');
+            setElementLoaded('fg_formsPar', 'badge_formsPar', parsed.length);
+            updatePreviewUI('formsPar', parsed);
+            checkProcessorReady();
+        } else if (type === 'formsInv') {
+            formsInvData = parsed;
+            const detectedInvitees = detectMaxSlots(formsInvData[0], '招待者');
+            document.getElementById('maxInvitees').value = detectedInvitees;
+            buildMappingUI(formsInvData[0], buildDynamicMapDefinitions('i', '招待者', detectedInvitees), 'mappingControlsInv');
+            setElementLoaded('fg_formsInv', 'badge_formsInv', parsed.length);
+            updatePreviewUI('formsInv', parsed);
+            checkProcessorReady();
+        } else if (type === 'idpin') {
+            idpinRawData = parsed;
+            setElementLoaded('fg_idpin', 'badge_idpin', parsed.length);
+            updatePreviewUI('idpin', parsed);
+        }
+    }
+
+    // コピペ入力による登録処理
+    function handlePastedInput(type) {
+        const text = document.getElementById(`paste_${type}`).value.trim();
+        if (!text) return;
+        const parsed = parseCSV(text);
+        if (parsed.length > 0) {
+            processParsedData(parsed, type);
+        }
+    }
+
+    // データの簡易プレビューUI表示（※クレンジング・サニタイズされた綺麗な状態で描画）
+    function updatePreviewUI(type, parsed) {
+        const previewEl = document.getElementById(`preview_${type}`);
+        if (!previewEl) return;
+        
+        previewEl.style.display = 'block';
+        const limit = Math.min(parsed.length, 3);
+        let tableHtml = `<details open><summary>取り込みデータプレビュー（先頭${limit}行、サニタイズ済）</summary><table>`;
+        for (let i = 0; i < limit; i++) {
+            tableHtml += '<tr>';
+            parsed[i].slice(0, 5).forEach(cell => {
+                const sanitized = sanitizePreviewText(cell);
+                tableHtml += `<td>${escapeHtml(sanitized)}</td>`;
+            });
+            if (parsed[i].length > 5) {
+                tableHtml += '<td>...</td>';
+            }
+            tableHtml += '</tr>';
+        }
+        tableHtml += '</table></details>';
+        previewEl.innerHTML = tableHtml;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function detectMaxSlots(headers, keyword) {
+        let max = 1;
+        if (!headers) return max;
+        headers.forEach(h => {
+            if (h.includes(keyword) || (keyword === '入場者' && h.includes('代表'))) {
+                const match = h.match(/\d+/);
+                if (match) {
+                    const num = parseInt(match[0]);
+                    if (num > max) max = num;
+                }
+            }
+        });
+        return max;
+    }
+
+    function onLimitConfigChange() {
+        if (formsInvData.length > 0) {
+            const iLimit = parseInt(document.getElementById('maxInvitees').value) || 3;
+            buildMappingUI(formsInvData[0], buildDynamicMapDefinitions('i', '招待者', iLimit), 'mappingControlsInv');
+        }
+    }
+
+    const phoneticMap = { 'A':'エー','B':'ビー','C':'シー','D':'ディー','E':'イー','F':'エフ','G':'ジー','H':'エイチ','I':'アイ','J':'ジェイ','K':'ケー','L':'エル','M':'エム','N':'エヌ','O':'オー','P':'ピー','Q':'キュー','R':'アール','S':'エス','T':'ティー','U':'ユー','V':'ブイ','W':'ダブリュー','X':'エックス','Y':'ワイ','Z':'ゼット' };
+    function getFurigana(pin) { 
+        return pin ? pin.toUpperCase().split('').map(c => phoneticMap[c] || c).join('・') : ''; 
+    }
+
+    function parseCSV(text) {
+        let separator = ',';
+        if (text.includes('\t')) {
+            separator = '\t';
+        }
+        const result = []; let row = []; let inQuotes = false; let currentVal = '';
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            if (inQuotes) {
+                if (char === '"' && text[i+1] === '"') { currentVal += '"'; i++; } 
+                else if (char === '"') { inQuotes = false; } else { currentVal += char; }
+            } else {
+                if (char === '"') { inQuotes = true; } 
+                else if (char === separator) { row.push(currentVal.trim()); currentVal = ''; } 
+                else if (char === '\n') { row.push(currentVal.trim()); result.push(row); row = []; currentVal = ''; } 
+                else if (char !== '\r') { currentVal += char; }
+            }
+        }
+        if (currentVal || row.length > 0) { row.push(currentVal.trim()); result.push(row); }
+        return result;
+    }
+
+    function setElementLoaded(wrapperId, badgeId, count) {
+        const badge = document.getElementById(badgeId);
+        badge.innerText = `✅ 読込完了 (${count}行)`;
+        badge.className = "file-status loaded";
+        
+        const wrapper = document.getElementById(wrapperId);
+        wrapper.className = "form-group loaded-input-wrapper";
+    }
+
+    function loadProcessorFile(e, type) {
+        const file = e.target.files[0]; if (!file) return;
+        detectAndReadText(file, function(text) {
+            const parsed = parseCSV(text);
+            if (parsed.length > 0) {
+                processParsedData(parsed, type);
+            }
+        });
+    }
+
+    function checkProcessorReady() {
+        if(formsParData.length > 0 || formsInvData.length > 0) { 
+            document.getElementById('mappingCard').style.display = 'block'; 
+        }
+    }
+
+    // 動的マッピングUI構築（※innerHTML結合によるセレクト選択状態リセットバグを完全解消）
+    function buildMappingUI(headers, mapDef, containerId) {
+        const container = document.getElementById(containerId); container.innerHTML = '';
+        if(!headers) return;
+        mapDef.forEach(config => {
+            const select = document.createElement('select'); select.id = config.id;
+            select.appendChild(new Option('-- なし --', '-1'));
+            let bestMatch = -1; let maxScore = 0;
+            headers.forEach((h, i) => {
+                select.appendChild(new Option(`[${i+1}] ${h}`, i));
+                let score = 0; config.keys.forEach(kw => { if(h.includes(kw)) score++; });
+                if(score > maxScore) { maxScore = score; bestMatch = i; }
+            });
+            
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'mapping-item';
+            
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'mapping-item-row';
+            
+            const label = document.createElement('label');
+            label.innerText = config.label;
+            rowDiv.appendChild(label);
+            rowDiv.appendChild(select);
+            itemDiv.appendChild(rowDiv);
+
+            const statusDiv = document.createElement('div');
+            statusDiv.style.fontSize = '0.75rem';
+            statusDiv.style.textAlign = 'right';
+            
+            if(bestMatch !== -1) {
+                select.value = bestMatch; // 選択肢を自動マッチングにバインド
+                const matchedKey = config.keys.find(kw => headers[bestMatch].includes(kw)) || '';
+                statusDiv.style.color = '#16a085';
+                statusDiv.innerText = `🤖 自動マッチング（判定根拠: '${matchedKey}'）`;
+            } else {
+                select.value = "-1";
+                statusDiv.style.color = '#e74c3c';
+                statusDiv.innerText = `⚠️ 列が見つかりませんでした。手動選択が必要です。`;
+            }
+            itemDiv.appendChild(statusDiv);
+            container.appendChild(itemDiv);
+        });
+    }
+
+    function logProcessorMessage(msg) { 
+        document.getElementById('logArea').innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}\n`; 
+    }
+
+    function showTroubleshooter(errorMessage) {
+        const trArea = document.getElementById('troubleshooterArea');
+        trArea.style.display = 'block';
+        let solutions = '';
+        
+        if (errorMessage.includes("ID/PINが不足") || errorMessage.includes("枯渇")) {
+            solutions = `
+                <li><strong>推測される原因:</strong> 割り当てる空のID/PINチケットの枚数が、Forms申請者の総数に対して不足しています。</li>
+                <li><strong>解決方法:</strong> 「① ID/PINの新規生成」タブに切り替え、生成件数を増やして再度チケットリストを新規発行し、④に読み込み直してください。</li>
+            `;
+        } else if (errorMessage.includes("undefined") || errorMessage.includes("Cannot read properties")) {
+            solutions = `
+                <li><strong>推測される原因:</strong> 選択されたCSV列名が不一致を起こしている、またはマッピング構成にズレがあります。</li>
+                <li><strong>解決方法:</strong> STEP 3 の「マッピング確認」箇所で、それぞれの必須項目が正しい列を選択しているか再度確認してください。また、Formsデータ側に空行や予期しない改行が含まれていないか確認してください。</li>
+            `;
+        } else {
+            solutions = `
+                <li><strong>推測される原因:</strong> CSVファイルのフォーマット（改行コード、カンマ区切りの不備）や文字エンコーディングが破損しています。</li>
+                <li><strong>解決方法:</strong> Excel等のソフトウェアで問題のCSVを開き、再度「CSV UTF-8（カンマ区切り）」形式で保存し直してから読み込みをお試しください。</li>
+            `;
+        }
+        
+        document.getElementById('troubleshooterSolutions').innerHTML = solutions;
+        document.getElementById('troubleshooterMsg').innerText = errorMessage;
+    }
+
+    function processData() {
+        document.getElementById('executeCard').style.display = 'block';
+        document.getElementById('logArea').innerHTML = '';
+        document.getElementById('warningsList').innerHTML = '';
+        document.getElementById('structuredWarningsArea').style.display = 'none';
+        document.getElementById('troubleshooterArea').style.display = 'none';
+        
+        // 必須入力チェックの厳格化
+        if (idpinRawData.length < 2) {
+            alert("【エラー】\n④ ID/PIN リストが読み込まれていません。\n処理を実行できません。ダウンロードした空チケットリストを指定してください。");
+            return;
+        }
+        if (quotaMap.size === 0) {
+            alert("【エラー】\n① 割り当てマスターが読み込まれていません。\n処理を実行できません。年組番号と割当可能数の名簿を入力してください。");
+            return;
+        }
+        if (formsParData.length < 2 && formsInvData.length < 2) {
+            alert("【エラー】\n② 【保護者公開】または ③ 【一般公開】の回答フォームの少なくとも一方は読み込ませる必要があります。");
+            return;
+        }
+
+        const iLimit = parseInt(document.getElementById('maxInvitees').value) || 3;
+
+        const mapDefPar = buildDynamicMapDefinitions('p', '入場者', 0);
+        const mapDefInv = buildDynamicMapDefinitions('i', '招待者', iLimit);
+
+        const mPar = {}; const mInv = {};
+        mapDefPar.forEach(c => mPar[c.id] = document.getElementById(c.id) ? parseInt(document.getElementById(c.id).value) : -1);
+        mapDefInv.forEach(c => mInv[c.id] = document.getElementById(c.id) ? parseInt(document.getElementById(c.id).value) : -1);
+
+        let pool = idpinRawData.slice(1).map(r => ({ id: r[0], pin: r[1] }));
+        let poolIdx = 0;
+        const getTicket = () => { 
+            if(poolIdx >= pool.length) throw new Error("ID/PINが不足（枯渇）しています！「① ID/PIN新規生成」タブで多めの件数で事前発行してください。"); 
+            return pool[poolIdx++]; 
+        };
+
+        const validPar = new Map();
+        if(formsParData.length > 0) {
+            for(let i=1; i<formsParData.length; i++) {
+                const r = formsParData[i]; 
+                const rawClass = r[mPar.p_Class]; if(!rawClass) continue;
+                const cleanClass = standardizeClassNum(rawClass);
+                if(!validPar.has(cleanClass) || new Date(r[mPar.p_Time]) > new Date(validPar.get(cleanClass)[mPar.p_Time])) {
+                    validPar.set(cleanClass, r);
+                }
+            }
+        }
+        const validInv = new Map();
+        if(formsInvData.length > 0) {
+            for(let i=1; i<formsInvData.length; i++) {
+                const r = formsInvData[i]; 
+                const rawClass = r[mInv.i_Class]; if(!rawClass) continue;
+                const cleanClass = standardizeClassNum(rawClass);
+                if(!validInv.has(cleanClass) || new Date(r[mInv.i_Time]) > new Date(validInv.get(cleanClass)[mInv.i_Time])) {
+                    validInv.set(cleanClass, r);
+                }
+            }
+        }
+
+        const allClassNums = Array.from(new Set([...validPar.keys(), ...validInv.keys()])).sort();
+        generatedSystemData = []; generatedPrintData = [];
+        flaggedIssues = []; 
+        cutCount = 0;
+
+        try {
+            allClassNums.forEach(classNum => {
+                const rPar = validPar.get(classNum);
+                const rInv = validInv.get(classNum);
+                
+                const studentName = (rPar && mPar.p_Student !== -1) ? rPar[mPar.p_Student] : ((rInv && mInv.i_Student !== -1) ? rInv[mInv.i_Student] : '不明');
+                
+                // 割り当てマスターの有無判定と「0」扱い警告の収集
+                let allowedQuota = 0;
+                let masterRegistered = true;
+                if (!quotaMap.has(classNum)) {
+                    masterRegistered = false;
+                    allowedQuota = 0;
+                } else {
+                    allowedQuota = quotaMap.get(classNum);
+                }
+
+                let printRow = { classNum, studentName, allowedQuota, parNum:'', parId:'', parPin:'', parFuri:'', invs:[] };
+
+                // 1. 保護者チケットの割り当て（入場予定人数分を一括した1つのチケット）
+                if(rPar) {
+                    const rawParNum = mPar.p_Num !== -1 ? rPar[mPar.p_Num] : '0';
+                    let parNumVal = parseInt(rawParNum) || 0;
+                    const isParentUnlimited = document.getElementById('parentUnlimited').checked;
+                    const maxParentsVal = parseInt(document.getElementById('maxParents').value) || 5;
+
+                    let parentCutNum = 0;
+                    if (!isParentUnlimited && parNumVal > maxParentsVal) {
+                        parentCutNum = parNumVal - maxParentsVal;
+                        parNumVal = maxParentsVal; // 上限値でカット
+                    }
+
+                    printRow.parNum = parNumVal;
+                    
+                    if (parNumVal > 0) {
+                        const t = getTicket();
+                        printRow.parId = t.id; printRow.parPin = t.pin; printRow.parFuri = getFurigana(t.pin);
+                        generatedSystemData.push({ 
+                            id: t.id, 
+                            pin: t.pin, 
+                            type: '入場券', 
+                            classNum, 
+                            studentName, 
+                            visitorName: `${studentName}の保護者`, 
+                            relation: '保護者', 
+                            num: parNumVal 
+                        });
+                    }
+
+                    // 保護者側の制限超過による警告カット
+                    if (parentCutNum > 0) {
+                        cutCount += parentCutNum;
+                        flaggedIssues.push({
+                            classNum: classNum,
+                            studentName: studentName,
+                            quota: maxParentsVal,
+                            requestedCount: parseInt(rawParNum) || 0,
+                            allNames: [`保護者等 ${rawParNum}名`],
+                            cutNames: [`超過分 ${parentCutNum}名`],
+                            acceptedNames: [`許可分 ${parNumVal}名`],
+                            reasonType: 'PARENT_QUOTA_OVER'
+                        });
+                        logProcessorMessage(`⚠️ 保護者制限超過: ${classNum} ${studentName} の保護者入場申請人数「${rawParNum}名」は設定された上限(${maxParentsVal}名)を超えたため、超過分(${parentCutNum}名)がカットされました。`);
+                    }
+                }
+
+                // 2. 招待者チケットの割り当て（足切り・警告・マスター未登録チェック）
+                if(rInv) {
+                    let requestedNames = [];
+                    let acceptedInvs = [];
+                    let cutNames = [];
+
+                    for(let i=1; i<=iLimit; i++) {
+                        let name = mInv['i_N'+i] !== -1 ? rInv[mInv['i_N'+i]] : '';
+                        let rel = mInv['i_R'+i] !== -1 ? rInv[mInv['i_R'+i]] : '';
+                        if(name) {
+                            requestedNames.push({ name, rel });
+                        }
+                    }
+
+                    requestedNames.forEach((item, index) => {
+                        if (index < allowedQuota) {
+                            const t = getTicket();
+                            printRow.invs.push({ name: item.name, rel: item.rel, id:t.id, pin:t.pin, furi:getFurigana(t.pin) });
+                            generatedSystemData.push({ id:t.id, pin:t.pin, type:'招待券', classNum, studentName, visitorName: item.name, relation: item.rel, num: 1 });
+                            acceptedInvs.push(item.name);
+                        } else {
+                            cutCount++;
+                            cutNames.push(item.name);
+                        }
+                    });
+
+                    // 割り当てマスター未登録生徒が申請を行った場合の可視化・警告追加
+                    if (!masterRegistered) {
+                        flaggedIssues.push({
+                            classNum: classNum,
+                            studentName: studentName,
+                            quota: 0,
+                            requestedCount: requestedNames.length,
+                            allNames: requestedNames.map(n => n.name),
+                            cutNames: cutNames,
+                            acceptedNames: [],
+                            reasonType: 'NOT_IN_MASTER'
+                        });
+                        logProcessorMessage(`⚠️ マスター未登録エラー: ${classNum} ${studentName} は「① 割り当てマスター」に存在しません。招待券配付枠が 0 件となり、すべての招待客「${cutNames.join('、')}」がカットされました。`);
+                    } else if (cutNames.length > 0) {
+                        flaggedIssues.push({
+                            classNum: classNum,
+                            studentName: studentName,
+                            quota: allowedQuota,
+                            requestedCount: requestedNames.length,
+                            allNames: requestedNames.map(n => n.name),
+                            cutNames: cutNames,
+                            acceptedNames: acceptedInvs,
+                            reasonType: 'QUOTA_OVER'
+                        });
+                        logProcessorMessage(`⚠️ 制限超過によるカット: ${classNum} ${studentName} の招待客「${cutNames.join('、')}」は土曜券の配付制限(${allowedQuota}枚)を超えたためカットされました。`);
+                    }
+                }
+                generatedPrintData.push(printRow);
+            });
+
+            // 警告アコーディオン表示の描画
+            if (flaggedIssues.length > 0) {
+                const warningsArea = document.getElementById('structuredWarningsArea');
+                const warningsList = document.getElementById('warningsList');
+                warningsArea.style.display = 'block';
+
+                flaggedIssues.forEach((issue) => {
+                    const accContainer = document.createElement('div');
+                    accContainer.className = 'accordion-container';
+
+                    const header = document.createElement('div');
+                    header.className = 'accordion-header';
+                    if (issue.reasonType === 'NOT_IN_MASTER') {
+                        header.innerText = `🚨 ${issue.classNum} ${issue.studentName} - 【重要】マスター未登録による除外 (${issue.cutNames.length}名カット)`;
+                        header.style.backgroundColor = '#fff5f5';
+                        header.style.color = '#e53e3e';
+                    } else if (issue.reasonType === 'PARENT_QUOTA_OVER') {
+                        header.innerText = `⚠️ ${issue.classNum} ${issue.studentName} - 【保護者制限超過】申請人数のカット (${issue.cutNames.join('、')})`;
+                    } else {
+                        header.innerText = `⚠️ ${issue.classNum} ${issue.studentName} - 制限超過による調整 (${issue.cutNames.length}名カット)`;
+                    }
+
+                    header.onclick = function() {
+                        this.classList.toggle('active');
+                        const body = this.nextElementSibling;
+                        body.style.display = body.style.display === 'block' ? 'none' : 'block';
+                    };
+
+                    const body = document.createElement('div');
+                    body.className = 'accordion-body';
+                    
+                    if (issue.reasonType === 'NOT_IN_MASTER') {
+                        body.innerHTML = `
+                            <p style="color:#e53e3e; font-weight:bold;">🚨 【警告】この生徒は割り当てマスターに登録されていません</p>
+                            <p><strong>【現在の申請状況】:</strong> 生徒は招待客として計 <strong>${issue.requestedCount}名</strong>（${issue.allNames.join('、')}）をFormsにて申請しています。</p>
+                            <p><strong>【検出された問題点】:</strong> 「① 割り当てマスター名簿」の中に、この生徒の標準化年組番号 <strong>「${issue.classNum}」</strong> が見つかりませんでした。これにより配付枠の上限が自動的に <strong>0 枚</strong> として処理されています。</p>
+                            <p><strong>【対応策・処理方針】:</strong> 割り当て枠がないため、申請された <strong>${issue.cutNames.join('、')}</strong> は自動的に配付リストからすべて除外されました。マスター名簿の記載ミスを確認するか、個別配布の対象としてください。</p>
+                        `;
+                    } else if (issue.reasonType === 'PARENT_QUOTA_OVER') {
+                        body.innerHTML = `
+                            <p style="color:var(--warning-color); font-weight:bold;">⚠️ 【保護者制限超過】申請人数が保護者上限を超えています</p>
+                            <p><strong>【現在の申請状況】:</strong> 生徒は保護者用入場者として計 <strong>${issue.requestedCount}名</strong> をFormsにて申請しています。</p>
+                            <p><strong>【検出された問題点】:</strong> 保護者公開日における1家庭あたりの最大入場制限は <strong>${issue.quota}名</strong> です。申請数がこれを超過しています。</p>
+                            <p><strong>【対応策・処理方針】:</strong> 制限枠内に収まる <strong>${issue.quota}名</strong> 分の入場枠としてチケットを発行し、超過した <strong>${issue.cutNames.join('、')}</strong> は自動的にカットしてデータを出力します。</p>
+                        `;
+                    } else {
+                        body.innerHTML = `
+                            <p><strong>【現在の申請状況】:</strong> 生徒は招待客として計 <strong>${issue.requestedCount}名</strong>（${issue.allNames.join('、')}）をFormsにて申請しています。</p>
+                            <p><strong>【検出された問題点】:</strong> この生徒に割り当てられている一般公開日の配付上限（割当枠）は <strong>${issue.quota}枚</strong> です。そのため、上限を超えた招待者（${issue.cutNames.join('、')}）へのチケット発行はできません。</p>
+                            <p><strong>【対応策・処理方針】:</strong> 割当枚数内となる先頭の <strong>${issue.quota}名</strong>（${issue.acceptedNames.join('、')}）にID/PINチケットを割り振りました。不整合となった <strong>${issue.cutNames.join('、')}</strong> は自動的に配付リストから除外してデータを出力します。</p>
+                        `;
+                    }
+
+                    accContainer.appendChild(header);
+                    accContainer.appendChild(body);
+                    warningsList.appendChild(accContainer);
+                });
+            }
+
+            document.getElementById('downloadArea').style.display = 'flex';
+            logProcessorMessage(`✅ 結合処理が完了しました！ (対象生徒数: ${allClassNums.length}名)`);
+            logProcessorMessage(`✅ 発行チケット枚数: ${poolIdx}枚 (制限超過・未登録による除外カット数: ${cutCount}件)`);
+
+        } catch(e) {
+            logProcessorMessage(`[処理中止] ${e.message}`);
+            showTroubleshooter(e.message);
+        }
+    }
+
+    function escapeCSV(v) { v=String(v||''); return v.includes(',') || v.includes('"') ? `"${v.replace(/"/g,'""')}"` : v; }
+
+    function downloadSystemCSV() {
+        let csv = "ID,PIN,券種,年組番号,生徒氏名,来場者名,続柄,入場人数\n";
+        generatedSystemData.forEach(d => csv += `${d.id},${d.pin},${d.type},${d.classNum},${escapeCSV(d.studentName)},${escapeCSV(d.visitorName)},${escapeCSV(d.relation)},${d.num}\n`);
+        triggerDl(csv, "system_import.csv");
+    }
+
+    function downloadPrintCSV() {
+        const iLimit = parseInt(document.getElementById('maxInvitees').value) || 3;
+        let csv = "年組番号,生徒氏名,割当枠,保護者_人数,保護者_ID,保護者_PIN,保護者_フリガナ";
+        for(let i=1; i<=iLimit; i++) {
+            csv += `,招${i}_氏名,招${i}_続柄,招${i}_ID,招${i}_PIN,招${i}_フリガナ`;
+        }
+        csv += "\n";
+
+        generatedPrintData.forEach(d => {
+            let r = `${d.classNum},${escapeCSV(d.studentName)},${d.allowedQuota},${escapeCSV(d.parNum)},${d.parId},${d.parPin},${d.parFuri}`;
+            for(let i=0; i<iLimit; i++) {
+                const inv = d.invs[i] || {};
+                r += `,${escapeCSV(inv.name)},${escapeCSV(inv.rel)},${inv.id||''},${inv.pin||''},${inv.furi||''}`;
+            }
+            csv += r + "\n";
+        });
+        triggerDl(csv, "print_merge.csv");
+    }
+
+    // 是正・警告対象者一覧の個別CSVダウンロード機能
+    function downloadWarningsCSV() {
+        if (flaggedIssues.length === 0) return alert("調整対象の生徒はいません。");
+        let csv = "年組番号,生徒氏名,配付可能制限枠数,申請総数,申請来場者全員,発行された来場者,除外(カット)された来場者,除外理由\n";
+        flaggedIssues.forEach(issue => {
+            let reason = '';
+            if (issue.reasonType === 'NOT_IN_MASTER') {
+                reason = '割り当てマスターに生徒の年組番号なし';
+            } else if (issue.reasonType === 'PARENT_QUOTA_OVER') {
+                reason = '保護者枠制限の上限超過';
+            } else {
+                reason = '招待可能制限枠の上限超過';
+            }
+            csv += `${issue.classNum},${escapeCSV(issue.studentName)},${issue.quota},${issue.requestedCount},${escapeCSV(issue.allNames.join('、'))},${escapeCSV(issue.acceptedNames.join('、'))},${escapeCSV(issue.cutNames.join('、'))},${reason}\n`;
+        });
+        triggerDl(csv, "warnings_list_adjust.csv");
+    }
+
+    function triggerDl(csvText, filename) {
+        const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+        const blob = new Blob([bom, csvText], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement("a"); 
+        a.href = URL.createObjectURL(blob); 
+        a.download = filename; 
+        a.click();
+    }
+
+    // ==================== CSVダウンロード・バックアップ ====================
+    function downloadCSV() {
+        if (currentGeneratedBatch.length === 0) return alert("エクスポートするデータがありません。");
+        exportBatchToCSV(currentGeneratedBatch, `tickets_${new Date().toISOString().replace(/[-T:]/g, '').split('.')[0]}.csv`);
+    }
+
+    function downloadHistoricalData(batchId) {
+        const targetBatch = appData.history.find(b => b.batchId === batchId);
+        if (!targetBatch || !targetBatch.data) {
+            return alert("データ本体が見つかりません。");
+        }
+        const safeDateStr = targetBatch.date.replace(/[\/\s:]/g, '_').replace('__', '_');
+        exportBatchToCSV(targetBatch.data, `tickets_history_${safeDateStr}.csv`);
+    }
+
+    function exportBatchToCSV(dataArray, filename) {
+        let csvContent = "ID,PIN\n";
+        dataArray.forEach(item => {
+            csvContent += `${escapeCSV(item.id)},${escapeCSV(item.pin)}\n`;
+        });
+        triggerDl(csvContent, filename);
+    }
+
+    function exportBackupJSON() {
+        if (appData.usedIds.length === 0 && appData.history.length === 0) return alert("バックアップする履歴がありません。");
+        const dataStr = JSON.stringify(appData);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `ticket_generator_backup_${new Date().toISOString().replace(/[-T:]/g, '').split('.')[0]}.json`;
+        link.click();
+    }
+
+    // 強制バックアップ付きのJSONダウンロード
+    function exportBackupJSONSilent() {
+        if (appData.usedIds.length === 0 && appData.history.length === 0) return;
+        const dataStr = JSON.stringify(appData);
+        const blob = new Blob([dataStr], { type: 'application/json' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `ticket_generator_AUTO_BACKUP_${new Date().toISOString().replace(/[-T:]/g, '').split('.')[0]}.json`;
+        link.click();
+    }
+
+    function importBackupJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        detectAndReadText(file, function(text) {
+            try {
+                const importedData = JSON.parse(text);
+                if (importedData && importedData.settings && importedData.history) {
+                    appData = {
+                        settings: { ...getDefaultSettings(), ...importedData.settings },
+                        history: importedData.history || [],
+                        usedIds: importedData.usedIds || [],
+                        usedPins: importedData.usedPins || []
+                    };
+                    saveData();
+                    applySettingsToUI();
+                    updateUI();
+                    checkTheoreticalLimits();
+                    alert("履歴データを復元しました。");
+                } else {
+                    alert("形式が無効なバックアップファイルです。");
+                }
+            } catch (err) {
+                alert("ファイルの読み込みに失敗しました。");
+            }
+            document.getElementById('fileInput').value = '';
+        });
+    }
+
+    // 2段階確認＋自動強制バックアップダウンロードによる安全化
+    function clearHistory() {
+        const confirm1 = confirm("⚠️ 警告: 全ての生成履歴、使用済みID/PIN記録、設定パラメータを完全にリセットします。\n\n本当にリセットを実行してもよろしいですか？（この操作は取り消せません）");
+        if (confirm1) {
+            const confirm2 = confirm("最後の確認です。\n本当にリセットしますか？\n（実行前に現在の履歴のバックアップファイルが自動的にダウンロードされます）");
+            if (confirm2) {
+                exportBackupJSONSilent();
+                appData = {
+                    settings: getDefaultSettings(),
+                    history: [],
+                    usedIds: [],
+                    usedPins: []
+                };
+                saveData();
+                applySettingsToUI();
+                updateUI();
+                checkTheoreticalLimits();
+                alert("すべてのデータと履歴をリセットしました。バックアップファイル(JSON)が自動ダウンロードされましたので、必要があれば保管してください。");
+            }
+        }
+    }
+</script>
+
+</body>
+</html>

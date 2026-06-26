@@ -737,18 +737,18 @@
             <!-- 第3章 -->
             <div class="manual-section" id="chap3">
                 <h3>第3章：割り当てマスター名簿の作成</h3>
-                <p>「割り当てマスター」とは、<strong>各生徒に配付する一般公開日（土曜券）の枚数上限を定めたリスト</strong>です。本システムはこのマスターを参照して、申請人数が上限を超えた分を自動的にカットします。</p>
+                <p>「割り当てマスター」とは、<strong>各生徒のIDと、一般公開日（土曜券）の枚数上限を定めたリスト</strong>です。本システムはこのマスターを参照して、1人につき1つのIDを使い、チケットごとにPINを割り当てます。</p>
 
                 <p><strong>■ 作成形式</strong><br>
                 Excelで以下の形式で作成し、CSVで保存してください（メモ帳コピペ用）。</p>
                 <table class="manual-table">
                     <thead>
-                        <tr><th>A列：年組番号</th><th>B列：許可した土曜券の枚数</th></tr>
+                        <tr><th>A列：年組番号</th><th>B列：ID</th><th>C列：許可した土曜券の枚数</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td>1102</td><td>3</td></tr>
-                        <tr><td>1103</td><td>2</td></tr>
-                        <tr><td>4319</td><td>3</td></tr>
+                        <tr><td>1102</td><td>A102</td><td>3</td></tr>
+                        <tr><td>1103</td><td>A103</td><td>2</td></tr>
+                        <tr><td>4319</td><td>D319</td><td>0</td></tr>
                     </tbody>
                 </table>
 
@@ -800,7 +800,7 @@
                             <td>①</td>
                             <td>割り当てマスター名簿</td>
                             <td>第3章で作成したCSV</td>
-                            <td>年組番号、許可枚数</td>
+                            <td>年組番号、ID、許可枚数</td>
                         </tr>
                         <tr>
                             <td>②</td>
@@ -816,9 +816,9 @@
                         </tr>
                         <tr>
                             <td>④</td>
-                            <td>ID/PINリスト</td>
-                            <td>タブ①でダウンロードしたCSV</td>
-                            <td>ID、PIN</td>
+                            <td>PINリスト</td>
+                            <td>タブ①で作成したPIN一覧CSV</td>
+                            <td>PIN</td>
                         </tr>
                     </tbody>
                 </table>
@@ -1160,7 +1160,7 @@
             <!-- 次のステップへのナビゲーション誘導 -->
             <div class="next-step-box" id="nextStepNav" style="display: block;">
                 <h3>👉 次のステップ</h3>
-                <p>空のチケットリストのダウンロードが完了しました。次に<strong>「② Formsデータの結合（本番処理）」</strong>タブをクリックし、ここでダウンロードしたCSVファイルを <strong>「④ ID/PINリスト」</strong> 欄に読み込ませて処理を開始してください。</p>
+                <p>PINリストのダウンロードが完了しました。次に<strong>「② Formsデータの結合（本番処理）」</strong>タブをクリックし、ここでダウンロードしたCSVファイルのPIN列を <strong>「④ PINリスト」</strong> 欄に読み込ませて処理を開始してください。</p>
             </div>
         </div>
 
@@ -1187,7 +1187,7 @@
     <div id="processorTab" class="tab-content">
         <div class="guide-box">
             <h3>🔰 ② Formsデータの結合（本番処理）の使い方</h3>
-            <p>Forms回答データと、事前作成した空のID/PINリストを紐付け、「システム登録用」「印刷用」のデータを作ります。</p>
+            <p>Forms回答データと、生徒ごとのID台帳、事前作成したPINリストを紐付け、「システム登録用」「印刷用」のデータを作ります。</p>
             <ol>
                 <li><strong>STEP 1: 各データ入力</strong>を行います。最初からコピペ入力用のボックスが表示されています。</li>
                 <li><strong>STEP 2: 列の紐付け（マッピング）</strong>が自動推測されます。ズレがある場合は正しい項目を選択し直してください。</li>
@@ -1225,7 +1225,7 @@
             <!-- ① 割り当てマスター -->
             <div class="form-group" id="fg_quota" style="border: 1px solid var(--border-color); padding: 12px; border-radius: 6px; margin-bottom:15px;">
                 <label>
-                    ① 年組番号と許可した土曜券(旧招待券)の枚数
+                    ① 年組番号・ID・許可した土曜券(旧招待券)の枚数
                     <span id="badge_quota" class="file-status">未読込</span>
                 </label>
                 
@@ -1245,7 +1245,7 @@
                 <div style="text-align: right; margin-top:5px;">
                     <button id="btn_toggle_quota" class="btn btn-secondary btn-sm" onclick="toggleInputMethod('quota')">ファイル選択に切り替える</button>
                 </div>
-                <p class="help-text">A列に「年組番号」、B列に「許可した土曜券の枚数」が入ったリスト（割り当てマスター）</p>
+                <p class="help-text">A列に「年組番号」、B列に「ID」、C列に「許可した土曜券の枚数」が入ったリスト（割り当てマスター）</p>
             </div>
 
             <!-- ② 保護者Forms -->
@@ -1300,15 +1300,15 @@
                 </div>
             </div>
 
-            <!-- ④ ID/PIN リスト -->
+            <!-- ④ PIN リスト -->
             <div class="form-group" id="fg_idpin" style="border: 1px solid var(--border-color); padding: 12px; border-radius: 6px;">
                 <label>
-                    ④ ID/PIN リスト
+                    ④ PIN リスト
                     <span id="badge_idpin" class="file-status">未読込</span>
                 </label>
                 
                 <div id="paste_area_idpin" class="paste-textarea-container">
-                    <p class="help-text" style="color:var(--accent-color);">生成した空チケットデータをExcel等からCSVにしてメモ帳で開き、全コピーして以下に貼り付けてください。</p>
+                    <p class="help-text" style="color:var(--accent-color);">生成したPIN一覧をメモ帳等で開き、全コピーして以下に貼り付けてください。ID列は不要です。</p>
                     <textarea id="paste_idpin" rows="4" placeholder="メモ帳で開いたデータをここにペーストしてください" oninput="handlePastedInput('idpin')"></textarea>
                 </div>
 
@@ -1321,7 +1321,7 @@
                 <div style="text-align: right; margin-top:5px;">
                     <button id="btn_toggle_idpin" class="btn btn-secondary btn-sm" onclick="toggleInputMethod('idpin')">ファイル選択に切り替える</button>
                 </div>
-                <p class="help-text">「① ID/PINの新規生成」でダウンロードした空チケットリストを指定します</p>
+                <p class="help-text">チケット1枚につきPINを1つ消費します。各生徒のIDは①の割り当てマスターから取得します。</p>
             </div>
         </div>
 
@@ -1890,7 +1890,10 @@
             for (let i = 1; i < parsed.length; i++) {
                 if (parsed[i][0]) {
                     const cleanKey = standardizeClassNum(parsed[i][0]);
-                    quotaMap.set(cleanKey, parseInt(parsed[i][1]) || 0);
+                    quotaMap.set(cleanKey, {
+                        id: (parsed[i][1] || '').trim(),
+                        quota: parseInt(parsed[i][2]) || 0
+                    });
                 }
             }
             setElementLoaded('fg_quota', 'badge_quota', parsed.length);
@@ -2087,10 +2090,10 @@
         trArea.style.display = 'block';
         let solutions = '';
         
-        if (errorMessage.includes("ID/PINが不足") || errorMessage.includes("枯渇")) {
+        if (errorMessage.includes("PINが不足") || errorMessage.includes("枯渇")) {
             solutions = `
-                <li><strong>推測される原因:</strong> 割り当てる空のID/PINチケットの枚数が、Forms申請者の総数に対して不足しています。</li>
-                <li><strong>解決方法:</strong> 「① ID/PINの新規生成」タブに切り替え、生成件数を増やして再度チケットリストを新規発行し、④に読み込み直してください。</li>
+                <li><strong>推測される原因:</strong> チケットに割り当てるPINの件数が、発行対象チケット数に対して不足しています。</li>
+                <li><strong>解決方法:</strong> 「① ID/PINの新規生成」タブでPINを多めに発行し、④にPIN一覧として読み込み直してください。</li>
             `;
         } else if (errorMessage.includes("undefined") || errorMessage.includes("Cannot read properties")) {
             solutions = `
@@ -2116,8 +2119,8 @@
         document.getElementById('troubleshooterArea').style.display = 'none';
         
         // 必須入力チェックの厳格化
-        if (idpinRawData.length < 2) {
-            alert("【エラー】\n④ ID/PIN リストが読み込まれていません。\n処理を実行できません。ダウンロードした空チケットリストを指定してください。");
+        if (idpinRawData.length < 1) {
+            alert("【エラー】\n④ PIN リストが読み込まれていません。\n処理を実行できません。事前作成したPIN一覧を指定してください。");
             return;
         }
         if (quotaMap.size === 0) {
@@ -2138,10 +2141,16 @@
         mapDefPar.forEach(c => mPar[c.id] = document.getElementById(c.id) ? parseInt(document.getElementById(c.id).value) : -1);
         mapDefInv.forEach(c => mInv[c.id] = document.getElementById(c.id) ? parseInt(document.getElementById(c.id).value) : -1);
 
-        let pool = idpinRawData.slice(1).map(r => ({ id: r[0], pin: r[1] }));
+        let pool = idpinRawData
+            .map(r => (r[0] || '').trim())
+            .filter(v => v && v.toUpperCase() !== 'PIN');
+        if (pool.length === 0) {
+            alert("【エラー】\n④ PIN リストに使用できるPINがありません。\nPINを1列で貼り付けるか、先頭行に「PIN」と書いた一覧を指定してください。");
+            return;
+        }
         let poolIdx = 0;
-        const getTicket = () => { 
-            if(poolIdx >= pool.length) throw new Error("ID/PINが不足（枯渇）しています！「① ID/PIN新規生成」タブで多めの件数で事前発行してください。"); 
+        const getPin = () => { 
+            if(poolIdx >= pool.length) throw new Error("PINが不足（枯渇）しています！「① ID/PIN新規生成」タブで多めの件数でPINを事前発行してください。"); 
             return pool[poolIdx++]; 
         };
 
@@ -2168,7 +2177,7 @@
             }
         }
 
-        const allClassNums = Array.from(new Set([...validPar.keys(), ...validInv.keys()])).sort();
+        const allClassNums = Array.from(new Set([...quotaMap.keys(), ...validPar.keys(), ...validInv.keys()])).sort();
         generatedSystemData = []; generatedPrintData = [];
         flaggedIssues = []; 
         cutCount = 0;
@@ -2182,16 +2191,22 @@
                 
                 // 割り当てマスターの有無判定と「0」扱い警告の収集
                 let allowedQuota = 0;
+                let studentId = '';
                 let masterRegistered = true;
                 if (!quotaMap.has(classNum)) {
                     masterRegistered = false;
                     allowedQuota = 0;
                 } else {
-                    allowedQuota = quotaMap.get(classNum);
+                    const masterRow = quotaMap.get(classNum);
+                    studentId = masterRow.id;
+                    allowedQuota = masterRow.quota;
+                }
+                const canIssueTickets = Boolean(studentId);
+                if (!canIssueTickets) {
+                    allowedQuota = 0;
                 }
 
-                let printRow = { classNum, studentName, allowedQuota, parNum:'', parId:'', parPin:'', parFuri:'', selfId:'', selfPin:'', selfFuri:'', invs:[] };
-                let issuedTicketCount = 0;
+                let printRow = { classNum, studentName, studentId, allowedQuota, parNum:'', parId:'', parPin:'', parFuri:'', invs:[] };
 
                 // 1. 保護者チケットの割り当て（入場予定人数分を一括した1つのチケット）
                 if(rPar) {
@@ -2208,13 +2223,12 @@
 
                     printRow.parNum = parNumVal;
                     
-                    if (parNumVal > 0) {
-                        const t = getTicket();
-                        printRow.parId = t.id; printRow.parPin = t.pin; printRow.parFuri = getFurigana(t.pin);
-                        issuedTicketCount++;
+                    if (parNumVal > 0 && canIssueTickets) {
+                        const pin = getPin();
+                        printRow.parId = studentId; printRow.parPin = pin; printRow.parFuri = getFurigana(pin);
                         generatedSystemData.push({ 
-                            id: t.id, 
-                            pin: t.pin, 
+                            id: studentId, 
+                            pin: pin, 
                             type: '入場券', 
                             classNum, 
                             studentName, 
@@ -2222,6 +2236,19 @@
                             relation: '保護者', 
                             num: parNumVal 
                         });
+                    } else if (parNumVal > 0 && !canIssueTickets) {
+                        cutCount += parNumVal;
+                        flaggedIssues.push({
+                            classNum: classNum,
+                            studentName: studentName,
+                            quota: 0,
+                            requestedCount: parNumVal,
+                            allNames: [`保護者等 ${parNumVal}名`],
+                            cutNames: [`保護者等 ${parNumVal}名`],
+                            acceptedNames: [],
+                            reasonType: 'MISSING_ID'
+                        });
+                        logProcessorMessage(`⚠️ ID未設定エラー: ${classNum} ${studentName} は「① 割り当てマスター」にIDがないため、保護者公開のチケットを発行できませんでした。`);
                     }
 
                     // 保護者側の制限超過による警告カット
@@ -2257,10 +2284,9 @@
 
                     requestedNames.forEach((item, index) => {
                         if (index < allowedQuota) {
-                            const t = getTicket();
-                            printRow.invs.push({ name: item.name, rel: item.rel, id:t.id, pin:t.pin, furi:getFurigana(t.pin) });
-                            issuedTicketCount++;
-                            generatedSystemData.push({ id:t.id, pin:t.pin, type:'招待券', classNum, studentName, visitorName: item.name, relation: item.rel, num: 1 });
+                            const pin = getPin();
+                            printRow.invs.push({ name: item.name, rel: item.rel, id:studentId, pin:pin, furi:getFurigana(pin) });
+                            generatedSystemData.push({ id:studentId, pin:pin, type:'招待券', classNum, studentName, visitorName: item.name, relation: item.rel, num: 1 });
                             acceptedInvs.push(item.name);
                         } else {
                             cutCount++;
@@ -2281,6 +2307,18 @@
                             reasonType: 'NOT_IN_MASTER'
                         });
                         logProcessorMessage(`⚠️ マスター未登録エラー: ${classNum} ${studentName} は「① 割り当てマスター」に存在しません。招待券配付枠が 0 件となり、すべての招待客「${cutNames.join('、')}」がカットされました。`);
+                    } else if (!canIssueTickets && cutNames.length > 0) {
+                        flaggedIssues.push({
+                            classNum: classNum,
+                            studentName: studentName,
+                            quota: 0,
+                            requestedCount: requestedNames.length,
+                            allNames: requestedNames.map(n => n.name),
+                            cutNames: cutNames,
+                            acceptedNames: [],
+                            reasonType: 'MISSING_ID'
+                        });
+                        logProcessorMessage(`⚠️ ID未設定エラー: ${classNum} ${studentName} は「① 割り当てマスター」にIDがないため、招待券を発行できませんでした。`);
                     } else if (cutNames.length > 0) {
                         flaggedIssues.push({
                             classNum: classNum,
@@ -2294,25 +2332,6 @@
                         });
                         logProcessorMessage(`⚠️ 制限超過によるカット: ${classNum} ${studentName} の招待客「${cutNames.join('、')}」は土曜券の配付制限(${allowedQuota}枚)を超えたためカットされました。`);
                     }
-                }
-
-                // 保護者・一般公開のどちらも0件だった生徒にも、本人用のID/PINを必ず1組割り当てる
-                if (issuedTicketCount === 0) {
-                    const t = getTicket();
-                    printRow.selfId = t.id;
-                    printRow.selfPin = t.pin;
-                    printRow.selfFuri = getFurigana(t.pin);
-                    generatedSystemData.push({
-                        id: t.id,
-                        pin: t.pin,
-                        type: '本人券',
-                        classNum,
-                        studentName,
-                        visitorName: studentName,
-                        relation: '本人',
-                        num: 1
-                    });
-                    logProcessorMessage(`ℹ️ ${classNum} ${studentName} は保護者公開・一般公開ともに申請/割当が0件のため、本人用ID/PINを1組割り当てました。`);
                 }
                 generatedPrintData.push(printRow);
             });
@@ -2331,6 +2350,10 @@
                     header.className = 'accordion-header';
                     if (issue.reasonType === 'NOT_IN_MASTER') {
                         header.innerText = `🚨 ${issue.classNum} ${issue.studentName} - 【重要】マスター未登録による除外 (${issue.cutNames.length}名カット)`;
+                        header.style.backgroundColor = '#fff5f5';
+                        header.style.color = '#e53e3e';
+                    } else if (issue.reasonType === 'MISSING_ID') {
+                        header.innerText = `🚨 ${issue.classNum} ${issue.studentName} - 【重要】ID未設定による除外 (${issue.cutNames.length}件)`;
                         header.style.backgroundColor = '#fff5f5';
                         header.style.color = '#e53e3e';
                     } else if (issue.reasonType === 'PARENT_QUOTA_OVER') {
@@ -2355,6 +2378,13 @@
                             <p><strong>【検出された問題点】:</strong> 「① 割り当てマスター名簿」の中に、この生徒の標準化年組番号 <strong>「${issue.classNum}」</strong> が見つかりませんでした。これにより配付枠の上限が自動的に <strong>0 枚</strong> として処理されています。</p>
                             <p><strong>【対応策・処理方針】:</strong> 割り当て枠がないため、申請された <strong>${issue.cutNames.join('、')}</strong> は自動的に配付リストからすべて除外されました。マスター名簿の記載ミスを確認するか、個別配布の対象としてください。</p>
                         `;
+                    } else if (issue.reasonType === 'MISSING_ID') {
+                        body.innerHTML = `
+                            <p style="color:#e53e3e; font-weight:bold;">🚨 【警告】この生徒にはIDが設定されていません</p>
+                            <p><strong>【現在の申請状況】:</strong> 発行対象として計 <strong>${issue.requestedCount}件</strong>（${issue.allNames.join('、')}）があります。</p>
+                            <p><strong>【検出された問題点】:</strong> 「① 割り当てマスター名簿」のID列が空のため、PINを割り当てても有効なチケットIDを出力できません。</p>
+                            <p><strong>【対応策・処理方針】:</strong> 対象の <strong>${issue.cutNames.join('、')}</strong> は出力から除外しました。①のID列を確認してください。</p>
+                        `;
                     } else if (issue.reasonType === 'PARENT_QUOTA_OVER') {
                         body.innerHTML = `
                             <p style="color:var(--warning-color); font-weight:bold;">⚠️ 【保護者制限超過】申請人数が保護者上限を超えています</p>
@@ -2378,7 +2408,7 @@
 
             document.getElementById('downloadArea').style.display = 'flex';
             logProcessorMessage(`✅ 結合処理が完了しました！ (対象生徒数: ${allClassNums.length}名)`);
-            logProcessorMessage(`✅ 発行チケット枚数: ${poolIdx}枚 (制限超過・未登録による除外カット数: ${cutCount}件)`);
+            logProcessorMessage(`✅ 発行チケット枚数: ${poolIdx}枚 / 使用PIN数: ${poolIdx}件 (制限超過・未登録による除外カット数: ${cutCount}件)`);
 
         } catch(e) {
             logProcessorMessage(`[処理中止] ${e.message}`);
@@ -2396,14 +2426,14 @@
 
     function downloadPrintCSV() {
         const iLimit = parseInt(document.getElementById('maxInvitees').value) || 3;
-        let csv = "年組番号,生徒氏名,割当枠,保護者_人数,保護者_ID,保護者_PIN,保護者_フリガナ,本人_ID,本人_PIN,本人_フリガナ";
+        let csv = "年組番号,生徒氏名,生徒_ID,割当枠,保護者_人数,保護者_ID,保護者_PIN,保護者_フリガナ";
         for(let i=1; i<=iLimit; i++) {
             csv += `,招${i}_氏名,招${i}_続柄,招${i}_ID,招${i}_PIN,招${i}_フリガナ`;
         }
         csv += "\n";
 
         generatedPrintData.forEach(d => {
-            let r = `${d.classNum},${escapeCSV(d.studentName)},${d.allowedQuota},${escapeCSV(d.parNum)},${d.parId},${d.parPin},${d.parFuri},${d.selfId||''},${d.selfPin||''},${d.selfFuri||''}`;
+            let r = `${d.classNum},${escapeCSV(d.studentName)},${escapeCSV(d.studentId)},${d.allowedQuota},${escapeCSV(d.parNum)},${escapeCSV(d.parId)},${d.parPin},${d.parFuri}`;
             for(let i=0; i<iLimit; i++) {
                 const inv = d.invs[i] || {};
                 r += `,${escapeCSV(inv.name)},${escapeCSV(inv.rel)},${inv.id||''},${inv.pin||''},${inv.furi||''}`;
@@ -2421,6 +2451,8 @@
             let reason = '';
             if (issue.reasonType === 'NOT_IN_MASTER') {
                 reason = '割り当てマスターに生徒の年組番号なし';
+            } else if (issue.reasonType === 'MISSING_ID') {
+                reason = '割り当てマスターのID未設定';
             } else if (issue.reasonType === 'PARENT_QUOTA_OVER') {
                 reason = '保護者枠制限の上限超過';
             } else {

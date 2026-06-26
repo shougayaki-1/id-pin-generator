@@ -2190,7 +2190,8 @@
                     allowedQuota = quotaMap.get(classNum);
                 }
 
-                let printRow = { classNum, studentName, allowedQuota, parNum:'', parId:'', parPin:'', parFuri:'', invs:[] };
+                let printRow = { classNum, studentName, allowedQuota, parNum:'', parId:'', parPin:'', parFuri:'', selfId:'', selfPin:'', selfFuri:'', invs:[] };
+                let issuedTicketCount = 0;
 
                 // 1. 保護者チケットの割り当て（入場予定人数分を一括した1つのチケット）
                 if(rPar) {
@@ -2210,6 +2211,7 @@
                     if (parNumVal > 0) {
                         const t = getTicket();
                         printRow.parId = t.id; printRow.parPin = t.pin; printRow.parFuri = getFurigana(t.pin);
+                        issuedTicketCount++;
                         generatedSystemData.push({ 
                             id: t.id, 
                             pin: t.pin, 
@@ -2257,6 +2259,7 @@
                         if (index < allowedQuota) {
                             const t = getTicket();
                             printRow.invs.push({ name: item.name, rel: item.rel, id:t.id, pin:t.pin, furi:getFurigana(t.pin) });
+                            issuedTicketCount++;
                             generatedSystemData.push({ id:t.id, pin:t.pin, type:'招待券', classNum, studentName, visitorName: item.name, relation: item.rel, num: 1 });
                             acceptedInvs.push(item.name);
                         } else {
@@ -2291,6 +2294,25 @@
                         });
                         logProcessorMessage(`⚠️ 制限超過によるカット: ${classNum} ${studentName} の招待客「${cutNames.join('、')}」は土曜券の配付制限(${allowedQuota}枚)を超えたためカットされました。`);
                     }
+                }
+
+                // 保護者・一般公開のどちらも0件だった生徒にも、本人用のID/PINを必ず1組割り当てる
+                if (issuedTicketCount === 0) {
+                    const t = getTicket();
+                    printRow.selfId = t.id;
+                    printRow.selfPin = t.pin;
+                    printRow.selfFuri = getFurigana(t.pin);
+                    generatedSystemData.push({
+                        id: t.id,
+                        pin: t.pin,
+                        type: '本人券',
+                        classNum,
+                        studentName,
+                        visitorName: studentName,
+                        relation: '本人',
+                        num: 1
+                    });
+                    logProcessorMessage(`ℹ️ ${classNum} ${studentName} は保護者公開・一般公開ともに申請/割当が0件のため、本人用ID/PINを1組割り当てました。`);
                 }
                 generatedPrintData.push(printRow);
             });
@@ -2374,14 +2396,14 @@
 
     function downloadPrintCSV() {
         const iLimit = parseInt(document.getElementById('maxInvitees').value) || 3;
-        let csv = "年組番号,生徒氏名,割当枠,保護者_人数,保護者_ID,保護者_PIN,保護者_フリガナ";
+        let csv = "年組番号,生徒氏名,割当枠,保護者_人数,保護者_ID,保護者_PIN,保護者_フリガナ,本人_ID,本人_PIN,本人_フリガナ";
         for(let i=1; i<=iLimit; i++) {
             csv += `,招${i}_氏名,招${i}_続柄,招${i}_ID,招${i}_PIN,招${i}_フリガナ`;
         }
         csv += "\n";
 
         generatedPrintData.forEach(d => {
-            let r = `${d.classNum},${escapeCSV(d.studentName)},${d.allowedQuota},${escapeCSV(d.parNum)},${d.parId},${d.parPin},${d.parFuri}`;
+            let r = `${d.classNum},${escapeCSV(d.studentName)},${d.allowedQuota},${escapeCSV(d.parNum)},${d.parId},${d.parPin},${d.parFuri},${d.selfId||''},${d.selfPin||''},${d.selfFuri||''}`;
             for(let i=0; i<iLimit; i++) {
                 const inv = d.invs[i] || {};
                 r += `,${escapeCSV(inv.name)},${escapeCSV(inv.rel)},${inv.id||''},${inv.pin||''},${inv.furi||''}`;
